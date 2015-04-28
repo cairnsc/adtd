@@ -23,7 +23,10 @@ public class XssTestIteratorImpl implements XssTestIterator {
 
     private static final String[] ATTACK_LIST = {
         "<script>adtd();</script>",
-        "<body/onhashchange=alert(1)><a href=#>click"
+        "<script src=\"adtd\"/>",
+        "<body onload=alert(1)>",
+        "<body/onhashchange=alert(1)><a href=#>click",
+        "<img src=javascript:alert(1)>"
     };
 
     private int currentIdx;

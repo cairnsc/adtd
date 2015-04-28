@@ -8,6 +8,8 @@ The objective of the library is to provide developers with a way to verify mitig
 framework or as custom code - adequately address threats. The focus will initially be on common classes of
 vulnerabilities, beginning with those found in the OWASP Top 10.
 
+# XSS
+
 ## Reflected XSS
 Test the outcome of rendering a page where user-supplied data from the request is included within the output.
 

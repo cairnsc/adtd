@@ -19,6 +19,15 @@ public class MultiValueLinkedHashMap<TKey, TValue> implements MultiValueMap<TKey
         list.add(value);
     }
 
+    public void add(TKey key, TValue... values) {
+        List<TValue> list = map.get(key);
+        if (list == null) {
+            list = new LinkedList<TValue>();
+            map.put(key, list);
+        }
+        Collections.addAll(list, values);
+    }
+
     public int size() {
         return map.size();
     }

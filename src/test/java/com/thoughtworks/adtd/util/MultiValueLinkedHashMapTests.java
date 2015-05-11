@@ -35,6 +35,19 @@ public class MultiValueLinkedHashMapTests {
     }
 
     @Test
+    public void shouldAddVariableArgumentsForKey() {
+        String key = "A";
+        String values[] = { "B", "C" };
+
+        map.add(key, values[0], values[1]);
+
+        assertThat(map.size()).isEqualTo(1);
+        List<String> list = map.get(key);
+        assertThat(list.size()).isEqualTo(2);
+        assertThat(list).contains(values);
+    }
+
+    @Test
     public void shouldAddMultipleElementsForKeyAndRetainOrder() {
         String key = "A";
         String values[] = { "B", "C", "D" };

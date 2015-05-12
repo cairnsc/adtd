@@ -9,10 +9,11 @@ public class RequestImpl implements Request {
     private String uri;
     private final MultiValueMap<String, String> headers;
     private final MultiValueMap<String, String> params;
-    private RequestSubject executor;
+    private RequestSubject subject;
+    private Response response;
 
-    public RequestImpl(RequestSubject executor) {
-        this.executor = executor;
+    public RequestImpl(RequestSubject subject) {
+        this.subject = subject;
         headers = new MultiValueLinkedHashMap<String, String>();
         params = new MultiValueLinkedHashMap<String, String>();
     }
@@ -53,8 +54,17 @@ public class RequestImpl implements Request {
         return params;
     }
 
-    public Response execute(WebProxy proxy) {
-        return null;
+    public Response execute(WebProxy proxy) throws Exception {
+        if (response != null) {
+            throw new IllegalStateException("The test has already been executed");
+        }
+
+        response = subject.execute(proxy);
+        return response;
+    }
+
+    public Response getResponse() {
+        return response;
     }
 
 }

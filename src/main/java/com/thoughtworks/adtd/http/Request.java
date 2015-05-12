@@ -13,5 +13,7 @@ public interface Request {
     Request param(String name, String... values);
     MultiValueMap<String, String> getParams();
 
-    Response execute(WebProxy proxy);
+    Response execute(WebProxy proxy) throws Exception;
+    Response getResponse();
+
 }

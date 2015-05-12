@@ -2,14 +2,19 @@ package com.thoughtworks.adtd.http;
 
 import com.thoughtworks.adtd.util.MultiValueMap;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class RequestImplTests {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private RequestSubject requestSubject;
     private RequestImpl request;
@@ -98,6 +103,40 @@ public class RequestImplTests {
         assertThat(params1).containsExactly(paramValues1);
         List<String> params2 = params.get(paramNames[1]);
         assertThat(params2).containsExactly(paramValue2);
+    }
+
+    @Test
+    public void shouldExecuteAgainstRequestSubject() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestSubject.execute(webProxy)).thenReturn(response);
+
+        Response result = request.execute(webProxy);
+
+        verify(requestSubject).execute(webProxy);
+        assertThat(result).isEqualTo(response);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenRequestHasAlreadyExecuted() throws Exception {
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+        WebProxy webProxy = mock(WebProxy.class);
+        when(requestSubject.execute(webProxy)).thenReturn(mock(Response.class));
+        request.execute(webProxy);
+
+        request.execute(webProxy);
+    }
+
+    @Test
+    public void shouldGetResponse() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestSubject.execute(webProxy)).thenReturn(response);
+
+        request.execute(webProxy);
+
+        assertThat(request.getResponse()).isEqualTo(response);
     }
 
 }

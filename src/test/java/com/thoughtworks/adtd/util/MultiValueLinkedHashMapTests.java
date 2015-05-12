@@ -65,6 +65,50 @@ public class MultiValueLinkedHashMapTests {
     }
 
     @Test
+    public void shouldContainKey() {
+        String key = "A";
+        String value = "B";
+
+        map.add(key, value);
+
+        assertThat(map.containsKey(key)).isTrue();
+    }
+
+    @Test
+    public void shouldNotContainKey() {
+        String key = "B";
+        String value = "C";
+
+        map.add(key, value);
+
+        assertThat(map.containsKey("D")).isFalse();
+    }
+
+    @Test
+    public void shouldContainValue() {
+        String key = "A";
+        String value = "B";
+
+        map.add(key, value);
+
+        List<String> list = new LinkedList<String>();
+        list.add(value);
+        assertThat(map.containsValue(list)).isTrue();
+    }
+
+    @Test
+    public void shouldNotContainValue() {
+        String key = "A";
+        String value = "B";
+
+        map.add(key, value);
+
+        List<String> list = new LinkedList<String>();
+        list.add("C");
+        assertThat(map.containsValue(list)).isFalse();
+    }
+
+    @Test
     public void shouldPutValuesForKey() {
         String key = "A";
         String value = "B";
@@ -124,7 +168,7 @@ public class MultiValueLinkedHashMapTests {
 
         map.clear();
 
-        assertThat(map.size()).isZero();
+        assertThat(map.isEmpty()).isTrue();
     }
 
     @Test

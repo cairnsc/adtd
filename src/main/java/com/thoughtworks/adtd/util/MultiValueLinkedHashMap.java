@@ -41,7 +41,7 @@ public class MultiValueLinkedHashMap<TKey, TValue> implements MultiValueMap<TKey
     }
 
     public boolean containsValue(Object value) {
-        return false;
+        return map.containsValue(value);
     }
 
     public List<TValue> get(Object key) {

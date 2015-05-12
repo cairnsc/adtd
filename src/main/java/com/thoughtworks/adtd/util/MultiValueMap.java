@@ -5,5 +5,5 @@ import java.util.Map;
 
 public interface MultiValueMap<TKey, TValue> extends Map<TKey, List<TValue>> {
     void add(TKey key, TValue value);
-    void add(TKey key, TValue... values);
+    void add(TKey key, TValue[] values);
 }

@@ -35,33 +35,30 @@ public class MultiValueLinkedHashMapTests {
     }
 
     @Test
-    public void shouldAddVariableArgumentsForKey() {
+    public void shouldAddArrayContentsForKey() {
         String key = "A";
         String values[] = { "B", "C" };
 
-        map.add(key, values[0], values[1]);
+        map.add(key, values);
 
         assertThat(map.size()).isEqualTo(1);
         List<String> list = map.get(key);
-        assertThat(list.size()).isEqualTo(2);
-        assertThat(list).contains(values);
+        assertThat(list).containsExactly(values);
     }
 
     @Test
     public void shouldAddMultipleElementsForKeyAndRetainOrder() {
         String key = "A";
-        String values[] = { "B", "C", "D" };
+        String values[] = { "B", "D", "C" };
 
         map.add(key, values[0]);
-        map.add(key, values[2]);
         map.add(key, values[1]);
+        map.add(key, values[2]);
 
         assertThat(map.size()).isEqualTo(1);
         List<String> list = map.get(key);
         assertThat(list.size()).isEqualTo(values.length);
-        assertThat(list.get(0)).isEqualTo(values[0]);
-        assertThat(list.get(1)).isEqualTo(values[2]);
-        assertThat(list.get(2)).isEqualTo(values[1]);
+        assertThat(list).containsExactly(values);
     }
 
     @Test
@@ -119,8 +116,7 @@ public class MultiValueLinkedHashMapTests {
 
         assertThat(map.size()).isEqualTo(1);
         List<String> list = map.get(key);
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list).contains(values);
+        assertThat(list).containsExactly(values);
     }
 
     @Test
@@ -132,8 +128,7 @@ public class MultiValueLinkedHashMapTests {
         List<String> list = map.remove(key);
 
         assertThat(map.size()).isZero();
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list).contains(value);
+        assertThat(list).containsExactly(value);
     }
 
     @Test
@@ -151,11 +146,9 @@ public class MultiValueLinkedHashMapTests {
 
         assertThat(map.size()).isEqualTo(2);
         List<String> list1 = map.get(srcKeys[0]);
-        assertThat(list1.size()).isEqualTo(1);
-        assertThat(list1).contains(srcValues[0]);
+        assertThat(list1).containsExactly(srcValues[0]);
         List<String> list2 = map.get(srcKeys[1]);
-        assertThat(list2.size()).isEqualTo(1);
-        assertThat(list2).contains(srcValues[1]);
+        assertThat(list2).containsExactly(srcValues[1]);
     }
 
     @Test
@@ -181,8 +174,7 @@ public class MultiValueLinkedHashMapTests {
 
         Set<String> keySet = map.keySet();
 
-        assertThat(keySet.size()).isEqualTo(keys.length);
-        assertThat(keySet).contains(keys);
+        assertThat(keySet).containsExactly(keys);
     }
 
     @Test

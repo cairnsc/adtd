@@ -1,6 +1,7 @@
 package com.thoughtworks.adtd.xss;
 
 import com.thoughtworks.adtd.http.*;
+import com.thoughtworks.adtd.util.AssertionFailureException;
 
 import java.util.regex.Pattern;
 
@@ -35,11 +36,24 @@ public class XssTestImpl implements XssTest, RequestSubject {
         return proxy.execute(request);
     }
 
-    public void assertResponse() {
+    public void assertResponse() throws AssertionFailureException {
         if (request == null || request.getResponse() == null) {
             throw new IllegalStateException("The test has not yet been executed");
         }
 
+        Response response = request.getResponse();
+        if (!HttpStatus.OK.equals(response.getStatus())) {
+            throw new AssertionFailureException("HTTP response status code", HttpStatus.OK, response.getStatus());
+        }
+
+        String body = response.getBody();
+        if (body == null || body.isEmpty()) {
+            throw new AssertionFailureException("HTTP response body is empty");
+        }
+
+        if (matches(body)) {
+            throw new AssertionFailureException("HTTP response body contains injected JavaScript");
+        }
     }
 
 }

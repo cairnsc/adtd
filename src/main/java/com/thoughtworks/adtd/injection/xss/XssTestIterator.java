@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.xss;
+package com.thoughtworks.adtd.injection.xss;
 
 import java.util.Iterator;
 

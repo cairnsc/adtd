@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.xss;
+package com.thoughtworks.adtd.injection.xss;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;

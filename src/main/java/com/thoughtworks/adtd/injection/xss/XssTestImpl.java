@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.xss;
+package com.thoughtworks.adtd.injection.xss;
 
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.util.AssertionFailureException;

@@ -36,7 +36,7 @@ public class XssTestImpl implements XssTest, RequestSubject {
         return proxy.execute(request);
     }
 
-    public void assertResponse() throws AssertionFailureException {
+    public void assertResponse() throws Exception {
         if (request == null || request.getResponse() == null) {
             throw new IllegalStateException("The test has not yet been executed");
         }

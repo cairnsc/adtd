@@ -12,6 +12,6 @@ public interface XssTest {
 
     // proxy tests
     Request prepare();
-    void assertResponse() throws AssertionFailureException;
+    void assertResponse() throws Exception;
 
 }

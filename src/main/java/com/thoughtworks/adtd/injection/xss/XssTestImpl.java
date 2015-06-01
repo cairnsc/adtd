@@ -42,8 +42,8 @@ public class XssTestImpl implements XssTest, RequestExecutor {
         }
 
         Response response = request.getResponse();
-        if (!HttpStatus.OK.equals(response.getStatus())) {
-            throw new AssertionFailureException("HTTP response status code", HttpStatus.OK, response.getStatus());
+        if (response.getStatus() != request.getExpectedStatusCode()) {
+            throw new AssertionFailureException("HTTP response status code", request.getExpectedStatusCode(), response.getStatus());
         }
 
         String body = response.getBody();

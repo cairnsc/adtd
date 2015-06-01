@@ -11,11 +11,13 @@ public class RequestImpl implements Request {
     private final MultiValueMap<String, String> params;
     private RequestExecutor executor;
     private Response response;
+    private int expectedStatusCode;
 
     public RequestImpl(RequestExecutor executor) {
         this.executor = executor;
         headers = new MultiValueLinkedHashMap<String, String>();
         params = new MultiValueLinkedHashMap<String, String>();
+        expectedStatusCode = HttpStatus.OK.getStatusCode();
     }
 
     public Request method(String value) {
@@ -65,6 +67,15 @@ public class RequestImpl implements Request {
 
     public Response getResponse() {
         return response;
+    }
+
+    public Request expectStatusCode(int statusCode) {
+        expectedStatusCode = statusCode;
+        return this;
+    }
+
+    public int getExpectedStatusCode() {
+        return expectedStatusCode;
     }
 
 }

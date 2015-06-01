@@ -86,12 +86,15 @@ public class XssTestImplTests {
     }
 
     @Test
-    public void shouldThrowExceptionWhenResponseStatusIsNotOk() throws Exception {
+    public void shouldThrowExceptionWhenResponseStatusIsNotExpected() throws Exception {
+        int expectedStatusCode = 123;
+        int actualStatusCode = 321;
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("HTTP response status code: expected \"200\", actual \"999\"");
+        expectedException.expectMessage("HTTP response status code: expected \"" + expectedStatusCode + "\", actual \"" + actualStatusCode + "\"");
         String testPattern = "";
         createTestRequestAndMockedResponse(testPattern);
-        when(response.getStatus()).thenReturn(999);
+        request.expectStatusCode(expectedStatusCode);
+        when(response.getStatus()).thenReturn(actualStatusCode);
 
         request.execute(webProxy);
 

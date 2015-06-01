@@ -139,4 +139,17 @@ public class RequestImplTests {
         assertThat(request.getResponse()).isEqualTo(response);
     }
 
+    @Test
+    public void shouldExpectStatusCode200ByDefault() {
+        assertThat(request.getExpectedStatusCode()).isEqualTo(HttpStatus.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldSetExpectedStatusCode() {
+        int statusCode = 999;
+        request.expectStatusCode(statusCode);
+
+        assertThat(request.getExpectedStatusCode()).isEqualTo(statusCode);
+    }
+
 }

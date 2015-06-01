@@ -16,4 +16,17 @@ public interface Request {
     Response execute(WebProxy proxy) throws Exception;
     Response getResponse();
 
+    /**
+     * Set the status code expected in a response. Defaults to 200 (OK).
+     * @param statusCode Status code.
+     * @return This request.
+     */
+    Request expectStatusCode(int statusCode);
+
+    /**
+     * Get the status code expected in a response.
+     * @return Status code.
+     */
+    int getExpectedStatusCode();
+
 }

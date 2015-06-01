@@ -5,7 +5,7 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 
 import java.util.regex.Pattern;
 
-public class XssTestImpl implements XssTest, RequestSubject {
+public class XssTestImpl implements XssTest, RequestExecutor {
 
     private String testPattern;
     private Request request;

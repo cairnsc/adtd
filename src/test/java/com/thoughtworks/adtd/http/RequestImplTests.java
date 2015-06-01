@@ -16,13 +16,13 @@ public class RequestImplTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private RequestSubject requestSubject;
+    private RequestExecutor requestExecutor;
     private RequestImpl request;
 
     @Before
     public void setUp() {
-        requestSubject = mock(RequestSubject.class);
-        request = new RequestImpl(requestSubject);
+        requestExecutor = mock(RequestExecutor.class);
+        request = new RequestImpl(requestExecutor);
     }
 
     @Test
@@ -109,11 +109,11 @@ public class RequestImplTests {
     public void shouldExecuteAgainstRequestSubject() throws Exception {
         WebProxy webProxy = mock(WebProxy.class);
         Response response = mock(Response.class);
-        when(requestSubject.execute(webProxy)).thenReturn(response);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
 
         Response result = request.execute(webProxy);
 
-        verify(requestSubject).execute(webProxy);
+        verify(requestExecutor).execute(webProxy);
         assertThat(result).isEqualTo(response);
     }
 
@@ -122,7 +122,7 @@ public class RequestImplTests {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("The test has already been executed");
         WebProxy webProxy = mock(WebProxy.class);
-        when(requestSubject.execute(webProxy)).thenReturn(mock(Response.class));
+        when(requestExecutor.execute(webProxy)).thenReturn(mock(Response.class));
         request.execute(webProxy);
 
         request.execute(webProxy);
@@ -132,7 +132,7 @@ public class RequestImplTests {
     public void shouldGetResponse() throws Exception {
         WebProxy webProxy = mock(WebProxy.class);
         Response response = mock(Response.class);
-        when(requestSubject.execute(webProxy)).thenReturn(response);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
 
         request.execute(webProxy);
 

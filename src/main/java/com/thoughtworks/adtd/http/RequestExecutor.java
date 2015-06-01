@@ -1,6 +1,6 @@
 package com.thoughtworks.adtd.http;
 
-public interface RequestSubject {
+public interface RequestExecutor {
 
     Response execute(WebProxy proxy) throws Exception;
 

@@ -5,6 +5,8 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
+
 public class XssTestImpl implements XssTest, RequestExecutor {
 
     private String testPattern;
@@ -33,7 +35,11 @@ public class XssTestImpl implements XssTest, RequestExecutor {
     }
 
     public Response execute(WebProxy proxy) throws Exception {
+        request.expectIfUnset(status().is(HttpStatus.OK));
         return proxy.execute(request);
+    }
+
+    public void process(Request request, Response response) throws Exception {
     }
 
     public void assertResponse() throws Exception {
@@ -42,9 +48,6 @@ public class XssTestImpl implements XssTest, RequestExecutor {
         }
 
         Response response = request.getResponse();
-        if (response.getStatus() != request.getExpectedStatusCode()) {
-            throw new AssertionFailureException("HTTP response status code", request.getExpectedStatusCode(), response.getStatus());
-        }
 
         String body = response.getBody();
         if (body == null || body.isEmpty()) {

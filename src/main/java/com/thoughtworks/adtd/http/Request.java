@@ -2,6 +2,8 @@ package com.thoughtworks.adtd.http;
 
 import com.thoughtworks.adtd.util.MultiValueMap;
 
+import java.util.Collection;
+
 public interface Request {
 
     Request method(String value);
@@ -13,20 +15,11 @@ public interface Request {
     Request param(String name, String... values);
     MultiValueMap<String, String> getParams();
 
+    Request expect(ResponseCondition condition);
+    Request expectIfUnset(ResponseCondition condition);
+    Collection<ResponseCondition> getExpectations();
+
     Response execute(WebProxy proxy) throws Exception;
     Response getResponse();
-
-    /**
-     * Set the status code expected in a response. Defaults to 200 (OK).
-     * @param statusCode Status code.
-     * @return This request.
-     */
-    Request expectStatusCode(int statusCode);
-
-    /**
-     * Get the status code expected in a response.
-     * @return Status code.
-     */
-    int getExpectedStatusCode();
 
 }

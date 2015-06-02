@@ -5,7 +5,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +17,6 @@ public class RequestImplTests {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
     private RequestExecutor requestExecutor;
     private RequestImpl request;
 
@@ -36,6 +37,18 @@ public class RequestImplTests {
     }
 
     @Test
+    public void shouldThrowExceptionInMethodWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.method("GET");
+    }
+
+    @Test
     public void shouldSetUri() {
         String uri = "http://adtd/test";
 
@@ -43,6 +56,19 @@ public class RequestImplTests {
         assertThat(retVal).isEqualTo(request);
 
         assertThat(request.getUri()).isEqualTo(uri);
+    }
+
+    @Test
+    public void shouldThrowExceptionInUriWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.uri("test");
     }
 
     @Test
@@ -76,6 +102,18 @@ public class RequestImplTests {
     }
 
     @Test
+    public void shouldThrowExceptionInHeaderWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.header("A", "B");
+    }
+
+    @Test
     public void shouldSetParam() {
         String paramName = "A";
         String paramValue = "B";
@@ -106,7 +144,19 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldExecuteAgainstRequestSubject() throws Exception {
+    public void shouldThrowExceptionInParamWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.param("A", "B");
+    }
+
+    @Test
+    public void shouldExecuteAgainstRequestExecutor() throws Exception {
         WebProxy webProxy = mock(WebProxy.class);
         Response response = mock(Response.class);
         when(requestExecutor.execute(webProxy)).thenReturn(response);
@@ -119,11 +169,20 @@ public class RequestImplTests {
 
     @Test
     public void shouldThrowExceptionWhenRequestHasAlreadyExecuted() throws Exception {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("The test has already been executed");
         WebProxy webProxy = mock(WebProxy.class);
         when(requestExecutor.execute(webProxy)).thenReturn(mock(Response.class));
         request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.execute(webProxy);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfExecutorExecuteReturnsNull() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        expectedException.expect(InvalidResponseException.class);
+        expectedException.expectMessage("RequestExecutor execute returned null");
 
         request.execute(webProxy);
     }
@@ -140,16 +199,73 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldExpectStatusCode200ByDefault() {
-        assertThat(request.getExpectedStatusCode()).isEqualTo(HttpStatus.OK.getStatusCode());
+    public void shouldNotAddResponseConditionOfSameTypeTwiceInExpectIfUnset() {
+        ResponseCondition condition1 = new TestResponseCondition("1");
+        ResponseCondition condition2 = mock(ResponseCondition.class);
+        ResponseCondition condition3 = new TestResponseCondition("3");
+
+        request.expectIfUnset(condition1);
+        request.expectIfUnset(condition2);
+        request.expectIfUnset(condition3);
+
+        Collection<ResponseCondition> expectations = request.getExpectations();
+        assertThat(expectations.size()).isEqualTo(2);
+        assertThat(expectations).contains(condition1);
+        assertThat(expectations).contains(condition2);
     }
 
     @Test
-    public void shouldSetExpectedStatusCode() {
-        int statusCode = 999;
-        request.expectStatusCode(statusCode);
+    public void shouldVerifyConditionsInOrder() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        ResponseCondition condition1 = mock(ResponseCondition.class);
+        ResponseCondition condition2 = mock(ResponseCondition.class);
+        request.expect(condition1);
+        request.expect(condition2);
+        InOrder inOrder = inOrder(condition1, condition2);
 
-        assertThat(request.getExpectedStatusCode()).isEqualTo(statusCode);
+        request.execute(webProxy);
+
+        inOrder.verify(condition1).match(request, response);
+        inOrder.verify(condition2).match(request, response);
+    }
+
+    @Test
+    public void shouldThrowExceptionInExpectWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.expect(mock(ResponseCondition.class));
+    }
+
+    @Test
+    public void shouldThrowExceptionInExpectIfUnsetWhenRequestHasAlreadyExecuted() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        request.execute(webProxy);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("The test has already been executed");
+
+        request.expectIfUnset(mock(ResponseCondition.class));
+    }
+
+    private class TestResponseCondition implements ResponseCondition {
+
+        private final String name;
+
+        public TestResponseCondition(String name) {
+            this.name = name;
+        }
+
+        public void match(Request request, Response response) throws Exception {
+        }
+
     }
 
 }

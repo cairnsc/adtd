@@ -1,17 +1,16 @@
 package com.thoughtworks.adtd.injection.xss;
 
-import com.thoughtworks.adtd.http.Request;
-import com.thoughtworks.adtd.http.Response;
-import com.thoughtworks.adtd.http.WebProxy;
+import com.thoughtworks.adtd.http.*;
+import com.thoughtworks.adtd.http.responseConditions.ResponseStatusCondition;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collection;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class XssTestImplTests {
 
@@ -54,18 +53,31 @@ public class XssTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() {
+        test = new XssTestImpl("<script>");
+        test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A test request has already been created for this test");
-        test = new XssTestImpl("");
-        test.prepare();
 
         test.prepare();
     }
 
     @Test
+    public void shouldRegisterResponseStatusConditionIfUnset() throws Exception {
+        String testPattern = "<script>";
+        createTestRequestAndMockedResponse(testPattern, 200);
+
+        Response result = request.execute(webProxy);
+
+        Collection<ResponseCondition> expectations = request.getExpectations();
+
+        // REVISIT: should assert that it was added only if it was unset
+        assertThat(expectations).contains(new ResponseStatusCondition(HttpStatus.OK));
+    }
+
+    @Test
     public void shouldExecuteRequestUsingWebProxy() throws Exception {
         String testPattern = "<script>adtd();</script>";
-        createTestRequestAndMockedResponse(testPattern);
+        createTestRequestAndMockedResponse(testPattern, 200);
 
         Response result = request.execute(webProxy);
 
@@ -75,40 +87,20 @@ public class XssTestImplTests {
 
     @Test
     public void shouldThrowExceptionWhenNoResponseIsSetInAssertResponse() throws Exception {
+        test = new XssTestImpl("");
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("The test has not yet been executed");
-        test = new XssTestImpl("");
-        webProxy = mock(WebProxy.class);
-
-        test.prepare().execute(webProxy);
-
-        test.assertResponse();
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenResponseStatusIsNotExpected() throws Exception {
-        int expectedStatusCode = 123;
-        int actualStatusCode = 321;
-        expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("HTTP response status code: expected \"" + expectedStatusCode + "\", actual \"" + actualStatusCode + "\"");
-        String testPattern = "";
-        createTestRequestAndMockedResponse(testPattern);
-        request.expectStatusCode(expectedStatusCode);
-        when(response.getStatus()).thenReturn(actualStatusCode);
-
-        request.execute(webProxy);
 
         test.assertResponse();
     }
 
     @Test
     public void shouldThrowExceptionWhenResponseBodyIsEmpty() throws Exception {
+        String testPattern = "<script>";
+        createTestRequestAndMockedResponse(testPattern, 200);
+        when(response.getBody()).thenReturn("");
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response body is empty");
-        String testPattern = "";
-        createTestRequestAndMockedResponse(testPattern);
-        when(response.getStatus()).thenReturn(200);
-        when(response.getBody()).thenReturn("");
 
         request.execute(webProxy);
 
@@ -117,12 +109,11 @@ public class XssTestImplTests {
 
     @Test
     public void shouldThrowExceptionWhenResponseBodyIsNull() throws Exception {
+        String testPattern = "<script>";
+        createTestRequestAndMockedResponse(testPattern, 200);
+        when(response.getBody()).thenReturn(null);
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response body is empty");
-        String testPattern = "";
-        createTestRequestAndMockedResponse(testPattern);
-        when(response.getStatus()).thenReturn(200);
-        when(response.getBody()).thenReturn(null);
 
         request.execute(webProxy);
 
@@ -131,24 +122,24 @@ public class XssTestImplTests {
 
     @Test
     public void shouldThrowExceptionWhenResponseBodyMatchesPattern() throws Exception {
+        String testPattern = "<script>adtd();</script>";
+        createTestRequestAndMockedResponse(testPattern, 200);
+        String content = "<html><body>" + testPattern + "</body></html>";
+        when(response.getBody()).thenReturn(content);
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response body contains injected JavaScript");
-        String testPattern = "<script>adtd();</script>";
-        createTestRequestAndMockedResponse(testPattern);
-        String content = "<html><body>" + testPattern + "</body></html>";
-        when(response.getStatus()).thenReturn(200);
-        when(response.getBody()).thenReturn(content);
 
         request.execute(webProxy);
 
         test.assertResponse();
     }
 
-    private void createTestRequestAndMockedResponse(String testPattern) throws Exception {
+    private void createTestRequestAndMockedResponse(String testPattern, int statusCode) throws Exception {
         test = new XssTestImpl(testPattern);
         request = test.prepare();
         webProxy = mock(WebProxy.class);
         response = mock(Response.class);
+        when(response.getStatus()).thenReturn(statusCode);
         when(webProxy.execute(request)).thenReturn(response);
     }
 

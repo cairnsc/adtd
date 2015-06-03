@@ -62,17 +62,17 @@ public class XssTestImplTests {
         test.prepare();
     }
 
-    @Test
-    public void shouldRegisterHasStatusCodeConditionIfUnset() throws Exception {
-        String testPattern = "<script>";
-        createTestRequestAndMockedResponse(testPattern, 200, "test");
+        @Test
+        public void shouldRegisterHasStatusCodeConditionIfUnset() throws Exception {
+            String testPattern = "<script>";
+            createTestRequestAndMockedResponse(testPattern, 200, "test");
 
-        Response result = request.execute(webProxy);
+            Response result = request.execute(webProxy);
 
-        Collection<ResponseCondition> expectations = request.getExpectations();
-        // REVISIT: should assert that it was added only if it was unset
-        assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
-    }
+            Collection<ResponseCondition> expectations = request.getExpectations();
+            // REVISIT: should assert that it was added only if it was unset
+            assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
+        }
 
     @Test
     public void shouldRegisterHasContentCondition() throws Exception {

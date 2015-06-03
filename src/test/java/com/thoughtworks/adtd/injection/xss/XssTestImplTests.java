@@ -1,7 +1,8 @@
 package com.thoughtworks.adtd.injection.xss;
 
 import com.thoughtworks.adtd.http.*;
-import com.thoughtworks.adtd.http.responseConditions.ResponseStatusCondition;
+import com.thoughtworks.adtd.http.responseConditions.body.HasContent;
+import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,22 +63,32 @@ public class XssTestImplTests {
     }
 
     @Test
-    public void shouldRegisterResponseStatusConditionIfUnset() throws Exception {
+    public void shouldRegisterHasStatusCodeConditionIfUnset() throws Exception {
         String testPattern = "<script>";
-        createTestRequestAndMockedResponse(testPattern, 200);
+        createTestRequestAndMockedResponse(testPattern, 200, "test");
 
         Response result = request.execute(webProxy);
 
         Collection<ResponseCondition> expectations = request.getExpectations();
-
         // REVISIT: should assert that it was added only if it was unset
-        assertThat(expectations).contains(new ResponseStatusCondition(HttpStatus.OK));
+        assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
+    }
+
+    @Test
+    public void shouldRegisterHasContentCondition() throws Exception {
+        String testPattern = "<script>";
+        createTestRequestAndMockedResponse(testPattern, 200, "test");
+
+        Response result = request.execute(webProxy);
+
+        Collection<ResponseCondition> expectations = request.getExpectations();
+        assertThat(expectations).contains(new HasContent(true));
     }
 
     @Test
     public void shouldExecuteRequestUsingWebProxy() throws Exception {
         String testPattern = "<script>adtd();</script>";
-        createTestRequestAndMockedResponse(testPattern, 200);
+        createTestRequestAndMockedResponse(testPattern, 200, "test");
 
         Response result = request.execute(webProxy);
 
@@ -95,36 +106,10 @@ public class XssTestImplTests {
     }
 
     @Test
-    public void shouldThrowExceptionWhenResponseBodyIsEmpty() throws Exception {
-        String testPattern = "<script>";
-        createTestRequestAndMockedResponse(testPattern, 200);
-        when(response.getBody()).thenReturn("");
-        expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("HTTP response body is empty");
-
-        request.execute(webProxy);
-
-        test.assertResponse();
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenResponseBodyIsNull() throws Exception {
-        String testPattern = "<script>";
-        createTestRequestAndMockedResponse(testPattern, 200);
-        when(response.getBody()).thenReturn(null);
-        expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("HTTP response body is empty");
-
-        request.execute(webProxy);
-
-        test.assertResponse();
-    }
-
-    @Test
     public void shouldThrowExceptionWhenResponseBodyMatchesPattern() throws Exception {
         String testPattern = "<script>adtd();</script>";
-        createTestRequestAndMockedResponse(testPattern, 200);
         String content = "<html><body>" + testPattern + "</body></html>";
+        createTestRequestAndMockedResponse(testPattern, 200, content);
         when(response.getBody()).thenReturn(content);
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response body contains injected JavaScript");
@@ -134,13 +119,14 @@ public class XssTestImplTests {
         test.assertResponse();
     }
 
-    private void createTestRequestAndMockedResponse(String testPattern, int statusCode) throws Exception {
+    private void createTestRequestAndMockedResponse(String testPattern, int statusCode, String body) throws Exception {
         test = new XssTestImpl(testPattern);
         request = test.prepare();
         webProxy = mock(WebProxy.class);
         response = mock(Response.class);
-        when(response.getStatus()).thenReturn(statusCode);
         when(webProxy.execute(request)).thenReturn(response);
+        when(response.getStatus()).thenReturn(statusCode);
+        when(response.getBody()).thenReturn(body);
     }
 
 }

@@ -5,6 +5,7 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.adtd.http.ResponseConditionFactory.body;
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
 public class XssTestImpl implements XssTest, RequestExecutor {
@@ -36,6 +37,7 @@ public class XssTestImpl implements XssTest, RequestExecutor {
 
     public Response execute(WebProxy proxy) throws Exception {
         request.expectIfUnset(status().is(HttpStatus.OK));
+        request.expect(body().isNotNullOrEmpty());
         return proxy.execute(request);
     }
 
@@ -47,12 +49,7 @@ public class XssTestImpl implements XssTest, RequestExecutor {
             throw new IllegalStateException("The test has not yet been executed");
         }
 
-        Response response = request.getResponse();
-
-        String body = response.getBody();
-        if (body == null || body.isEmpty()) {
-            throw new AssertionFailureException("HTTP response body is empty");
-        }
+        String body = request.getResponse().getBody();
 
         if (matches(body)) {
             throw new AssertionFailureException("HTTP response body contains injected JavaScript");

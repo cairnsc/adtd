@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.http.responseConditions;
+package com.thoughtworks.adtd.http.responseConditions.status;
 
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;
@@ -11,7 +11,7 @@ import org.junit.rules.ExpectedException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ResponseStatusConditionTests {
+public class HasStatusCodeTests {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -27,7 +27,7 @@ public class ResponseStatusConditionTests {
     @Test
     public void shouldMatchStatusCodeInResponse() throws Exception {
         int statusCode = 123;
-        ResponseStatusCondition condition = new ResponseStatusCondition(statusCode);
+        HasStatusCode condition = new HasStatusCode(statusCode);
         when(response.getStatus()).thenReturn(statusCode);
 
         condition.match(request, response);
@@ -37,7 +37,7 @@ public class ResponseStatusConditionTests {
     public void shouldThrowExceptionWhenStatusCodeInResponseDoesNotMatch() throws Exception {
         int expectedStatusCode = 200;
         int actualStatusCode = 400;
-        ResponseStatusCondition condition = new ResponseStatusCondition(expectedStatusCode);
+        HasStatusCode condition = new HasStatusCode(expectedStatusCode);
         when(response.getStatus()).thenReturn(actualStatusCode);
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response status code: expected \"" + expectedStatusCode + "\", actual \"" + actualStatusCode + "\"");

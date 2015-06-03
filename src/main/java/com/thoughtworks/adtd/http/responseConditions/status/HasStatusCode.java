@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.http.responseConditions;
+package com.thoughtworks.adtd.http.responseConditions.status;
 
 import com.thoughtworks.adtd.http.HttpStatus;
 import com.thoughtworks.adtd.http.Request;
@@ -9,15 +9,15 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 /**
  * Test whether a response has a particular status code.
  */
-public class ResponseStatusCondition implements ResponseCondition {
+public class HasStatusCode implements ResponseCondition {
 
     private final int statusCode;
 
-    public ResponseStatusCondition(HttpStatus statusCode) {
+    public HasStatusCode(HttpStatus statusCode) {
         this(statusCode.getStatusCode());
     }
 
-    public ResponseStatusCondition(int statusCode) {
+    public HasStatusCode(int statusCode) {
         this.statusCode = statusCode;
     }
 
@@ -32,7 +32,7 @@ public class ResponseStatusCondition implements ResponseCondition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ResponseStatusCondition that = (ResponseStatusCondition) o;
+        HasStatusCode that = (HasStatusCode) o;
 
         return statusCode == that.statusCode;
 

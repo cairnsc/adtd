@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.http;
 
+import com.thoughtworks.adtd.util.AssertionFailureException;
 import com.thoughtworks.adtd.util.MultiValueMap;
 import org.junit.Before;
 import org.junit.Rule;
@@ -255,15 +256,54 @@ public class RequestImplTests {
         request.expectIfUnset(mock(ResponseCondition.class));
     }
 
+    @Test
+    public void shouldInvokeProcessInRequestExecutor() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+
+        Response result = request.execute(webProxy);
+
+        assertThat(result).isEqualTo(response);
+        verify(requestExecutor).process(request, response);
+    }
+
+    @Test
+    public void shouldVerifyConditionsBeforeInvokingRequestExecutorProcess() throws Exception {
+        WebProxy webProxy = mock(WebProxy.class);
+        Response response = mock(Response.class);
+        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        String conditionName = "RequestImplTest";
+        TestResponseCondition condition = new TestResponseCondition(conditionName, true);
+        request.expect(condition);
+
+        try {
+            request.execute(webProxy);
+        } catch (AssertionFailureException ex) {
+            assertThat(ex.getMessage()).isEqualTo(conditionName);
+        }
+
+        verify(requestExecutor, never()).process(request, response);
+    }
+
     private class TestResponseCondition implements ResponseCondition {
 
         private final String name;
+        private final boolean shouldThrow;
 
         public TestResponseCondition(String name) {
+            this(name, false);
+        }
+
+        public TestResponseCondition(String name, boolean shouldThrow) {
             this.name = name;
+            this.shouldThrow = shouldThrow;
         }
 
         public void match(Request request, Response response) throws Exception {
+            if (shouldThrow) {
+                throw new AssertionFailureException(name);
+            }
         }
 
     }

@@ -112,6 +112,7 @@ public class RequestImpl implements Request {
         }
 
         verifyConditions();
+        executor.process(this, response);
 
         return response;
     }

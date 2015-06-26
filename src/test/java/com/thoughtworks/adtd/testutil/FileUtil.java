@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public class FileUtil {
 
-    public static String consumeFile(String path) throws IOException {
+    public static String consumeResourceFile(String path) throws IOException {
         InputStream inputStream = ClassLoader.getSystemResourceAsStream(path);
         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }

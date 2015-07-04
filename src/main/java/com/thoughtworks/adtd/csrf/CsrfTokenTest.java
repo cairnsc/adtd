@@ -23,7 +23,7 @@ public interface CsrfTokenTest {
      */
     Request prepareRetrieve(String formAction, String tokenInputName);
 
-    void setInput(String name, String value);
+    void setFormData(String name, String value);
     Request prepareSubmit();
     void assertResponse() throws Exception;
 

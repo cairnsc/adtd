@@ -1,26 +1,37 @@
 package com.thoughtworks.adtd.csrf;
 
+import com.thoughtworks.adtd.html.Form;
+import com.thoughtworks.adtd.html.FormElementImpl;
 import com.thoughtworks.adtd.http.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.FormElement;
-import org.jsoup.select.Elements;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
-public class CsrfTokenRetrieveRequest implements RequestExecutor {
+public class CsrfTokenRetrieveRequest implements CsrfTokenTestRequest, RequestExecutor {
 
+    private final CsrfTokenTestImpl testOrchestrator;
     private final String formAction;
     private final String tokenInputName;
     private Request request;
+    private Form form;
 
-    public CsrfTokenRetrieveRequest(String formAction, String tokenInputName) {
+    public CsrfTokenRetrieveRequest(CsrfTokenTestImpl testOrchestrator, String formAction, String tokenInputName) {
+        this.testOrchestrator = testOrchestrator;
         this.formAction = formAction;
         this.tokenInputName = tokenInputName;
         request = new RequestImpl(this).method("GET");
+    }
+
+    public Request getRequest() {
+        return request;
+    }
+
+    public Form getForm() {
+        return form;
     }
 
     public Response execute(WebProxy proxy) throws Exception {
@@ -29,46 +40,35 @@ public class CsrfTokenRetrieveRequest implements RequestExecutor {
     }
 
     public void process(Request request, Response response) throws Exception {
-        // REVISIT: check response content type
-
+        // REVISIT: check response content type and choose an appropriate strategy to process result
         String body = response.getBody();
         Document doc = Jsoup.parse(body);
+        form = FormElementImpl.getFormFromDocument(doc, formAction);
+        validateForm(form);
+        validateTokenElement(form);
+        testOrchestrator.notifyRequestComplete();
+    }
 
-        FormElement formElement = getFormElement(doc);
-
-        Elements elements = formElement.select("input[name=\"" + tokenInputName + "\"");
-        if (elements.size() != 1) {
-            throw new ElementCountException("input", 1, elements.size(), "name", tokenInputName);
-        }
-
-        Element inputElement = elements.first();
-        String tokenValue = inputElement.attr("value");
-        if (StringUtils.isBlank(tokenValue)) {
-            throw new ElementAttributeException("input", "name", tokenInputName, "has no value");
-        }
-
-        String typeValue = inputElement.attr("type");
-        if (!typeValue.equals("hidden")) {
-            throw new ElementTypeException("input", "name", tokenInputName, "type", "hidden", typeValue);
-        }
-
-        String methodValue = formElement.attr("method").toUpperCase();
+    private void validateForm(Form form) throws Exception {
+        String methodValue = form.getMethod();
         if (!methodValue.equals("POST")) {
+            // REVISIT: we need to add an explanation of why + how to mitigate
             throw new ElementTypeException("input", "name", tokenInputName, "method", "POST", methodValue);
         }
     }
 
-    private FormElement getFormElement(Document doc) throws Exception {
-        String selector = elementSelectorWithAttribute("form", "action", formAction);
-        Elements formElements = doc.select(selector);
-        if (formElements.size() != 1) {
-            throw new ElementCountException("form", 1, formElements.size(), "action", formAction);
-        }
-        return (FormElement) formElements.first();
-    }
+    private void validateTokenElement(Form form) throws Exception {
+        Element element = form.selectOne(elementSelectorWithAttribute("input", "name", tokenInputName));
 
-    public Request getRequest() {
-        return request;
+        String tokenValue = element.attr("value");
+        if (StringUtils.isBlank(tokenValue)) {
+            throw new ElementAttributeException("input", "name", tokenInputName, "has no value");
+        }
+
+        String typeValue = element.attr("type");
+        if (!typeValue.equals("hidden")) {
+            throw new ElementTypeException("input", "name", tokenInputName, "type", "hidden", typeValue);
+        }
     }
 
 }

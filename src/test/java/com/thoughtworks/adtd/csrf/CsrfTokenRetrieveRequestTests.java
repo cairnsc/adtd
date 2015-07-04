@@ -15,18 +15,17 @@ import static org.mockito.Mockito.when;
 
 public class CsrfTokenRetrieveRequestTests {
 
-    private static final String BASIC_HTML_BODY = "<html><body>test</body></html>";
     private static final String BASIC_FORM_BODY = "<html><body><form action=\"test\" method=\"post\"><input type=\"hidden\" name=\"test\" value=\"xyz\"></form></html>";
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private CsrfTokenTestImpl testOrchestrator;
     private CsrfTokenRetrieveRequest retrieveRequest;
     private WebProxy webProxy;
     private Request request;
     private Response response;
 
     @Test
-    public void shouldUseGetMethodByDefaultInRetrieveRequest() {
+    public void shouldUseGetMethodByDefaultInRequest() {
         createRequest("test", "test");
 
         assertThat(request.getMethod()).isEqualTo("GET");
@@ -44,6 +43,17 @@ public class CsrfTokenRetrieveRequestTests {
     }
 
     @Test
+    public void shouldNotifyTestOrchestratorAfterProcessingResponse() throws Exception {
+        createRequest("test", "test");
+        createMockedResponse(200, BASIC_FORM_BODY);
+
+        Response result = request.execute(webProxy);
+
+        assertThat(response).isEqualTo(result);
+        verify(testOrchestrator).notifyRequestComplete();
+    }
+
+    @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnset() throws Exception {
         createRequest("test", "test");
         createMockedResponse(200, BASIC_FORM_BODY);
@@ -56,38 +66,15 @@ public class CsrfTokenRetrieveRequestTests {
     }
 
     @Test
-    public void shouldThrowExceptionIfFormElementNotFound() throws Exception {
-        String formAction = "test";
-        createRequest(formAction, "/test");
-        createMockedResponse(200, BASIC_HTML_BODY);
-        expectedException.expect(ElementCountException.class);
-        expectedException.expectMessage("Expected 1 form elements with action=\"" + formAction + "\", found 0");
-
-        request.execute(webProxy);
-    }
-
-    @Test
-    public void shouldThrowExceptionIfMultipleFormElementsFound() throws Exception {
-        String formAction = "test";
-        String formHtml = "<form action=\"" + formAction + "\"></form>";
-        String html = "<html><body>" + formHtml + formHtml + "</body></html>";
-        createRequest(formAction, "test");
-        createMockedResponse(200, html);
-        expectedException.expect(ElementCountException.class);
-        expectedException.expectMessage("Expected 1 form elements with action=\"" + formAction + "\", found 2");
-
-        request.execute(webProxy);
-    }
-
-    @Test
-    public void shouldThrowExceptionIfTokenInputNotFound() throws Exception {
+    public void shouldThrowExceptionIfTokenWillBeExposedInRequest() throws Exception {
         String formAction = "test";
         String tokenInputName = "token";
-        String html = "<html><body><form action=\"" + formAction + "\"><input name=\"a\"></form></body></html>";
+        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"123\" method=\"get\">";
+        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
         createRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
-        expectedException.expect(ElementCountException.class);
-        expectedException.expectMessage("Expected 1 input elements with name=\"" + tokenInputName + "\", found 0");
+        expectedException.expect(ElementTypeException.class);
+        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has method=\"GET\", expected \"POST\"");
 
         request.execute(webProxy);
     }
@@ -121,20 +108,6 @@ public class CsrfTokenRetrieveRequestTests {
     }
 
     @Test
-    public void shouldThrowExceptionIfMultipleTokenInputsFound() throws Exception {
-        String formAction = "test";
-        String tokenInputName = "token";
-        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"abc123\">";
-        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
-        createMockedResponse(200, html);
-        expectedException.expect(ElementCountException.class);
-        expectedException.expectMessage("Expected 1 input elements with name=\"" + tokenInputName + "\", found 2");
-
-        request.execute(webProxy);
-    }
-
-    @Test
     public void shouldThrowExceptionIfInputTokenIsNotHidden() throws Exception {
         String formAction = "test";
         String tokenInputName = "token";
@@ -149,22 +122,9 @@ public class CsrfTokenRetrieveRequestTests {
         request.execute(webProxy);
     }
 
-    @Test
-    public void shouldThrowExceptionIfTokenWillBeExposedInRequest() throws Exception {
-        String formAction = "test";
-        String tokenInputName = "token";
-        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"123\" method=\"get\">";
-        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
-        createMockedResponse(200, html);
-        expectedException.expect(ElementTypeException.class);
-        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has method=\"\", expected \"POST\"");
-
-        request.execute(webProxy);
-    }
-
     private void createRequest(String formAction, String tokenInputName) {
-        retrieveRequest = new CsrfTokenRetrieveRequest(formAction, tokenInputName);
+        testOrchestrator = mock(CsrfTokenTestImpl.class);
+        retrieveRequest = new CsrfTokenRetrieveRequest(testOrchestrator, formAction, tokenInputName);
         request = retrieveRequest.getRequest();
     }
 

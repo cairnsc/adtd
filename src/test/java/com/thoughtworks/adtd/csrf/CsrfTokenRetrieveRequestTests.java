@@ -26,14 +26,14 @@ public class CsrfTokenRetrieveRequestTests {
 
     @Test
     public void shouldUseGetMethodByDefaultInRequest() {
-        createRequest("test", "test");
+        createRetrieveRequest("test", "test");
 
         assertThat(request.getMethod()).isEqualTo("GET");
     }
 
     @Test
     public void shouldExecuteRetrieveRequestUsingWebProxy() throws Exception {
-        createRequest("test", "test");
+        createRetrieveRequest("test", "test");
         createMockedResponse(200, BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
@@ -44,7 +44,7 @@ public class CsrfTokenRetrieveRequestTests {
 
     @Test
     public void shouldNotifyTestOrchestratorAfterProcessingResponse() throws Exception {
-        createRequest("test", "test");
+        createRetrieveRequest("test", "test");
         createMockedResponse(200, BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
@@ -55,7 +55,7 @@ public class CsrfTokenRetrieveRequestTests {
 
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnset() throws Exception {
-        createRequest("test", "test");
+        createRetrieveRequest("test", "test");
         createMockedResponse(200, BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
@@ -71,7 +71,7 @@ public class CsrfTokenRetrieveRequestTests {
         String tokenInputName = "token";
         String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"123\" method=\"get\">";
         String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
+        createRetrieveRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
         expectedException.expect(ElementTypeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has method=\"GET\", expected \"POST\"");
@@ -85,7 +85,7 @@ public class CsrfTokenRetrieveRequestTests {
         String tokenInputName = "token";
         String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\">";
         String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
+        createRetrieveRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
         expectedException.expect(ElementAttributeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
@@ -98,8 +98,8 @@ public class CsrfTokenRetrieveRequestTests {
         String formAction = "test";
         String tokenInputName = "token";
         String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"  \">";
-        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
+        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
+        createRetrieveRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
         expectedException.expect(ElementAttributeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
@@ -113,8 +113,8 @@ public class CsrfTokenRetrieveRequestTests {
         String tokenInputName = "token";
         String inputType = "foo";
         String tokenHtml = "<input type=\"" + inputType + "\" name=\"" + tokenInputName + "\" value=\"123\">";
-        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-        createRequest(formAction, tokenInputName);
+        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
+        createRetrieveRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
         expectedException.expect(ElementTypeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has type=\"" + inputType + "\", expected \"hidden\"");
@@ -122,9 +122,10 @@ public class CsrfTokenRetrieveRequestTests {
         request.execute(webProxy);
     }
 
-    private void createRequest(String formAction, String tokenInputName) {
+    private void createRetrieveRequest(String formAction, String tokenInputName) {
         testOrchestrator = mock(CsrfTokenTestImpl.class);
         retrieveRequest = new CsrfTokenRetrieveRequest(testOrchestrator, formAction, tokenInputName);
+        retrieveRequest.prepareRequest();
         request = retrieveRequest.getRequest();
     }
 

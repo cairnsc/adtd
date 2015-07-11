@@ -12,57 +12,54 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareRetrieveInvokedMoreThanOnce() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request has already been created for this test");
         test = new CsrfTokenTestImpl();
         test.prepareRetrieve("test", "/test");
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("A retrieve request has already been prepared for this test");
 
         test.prepareRetrieve("test", "/test");
     }
 
     @Test
-    public void shouldSetFormData() {
+    public void shouldGetFormDataAftterPrepareCompletes() {
+
     }
 
     @Test
-    public void shouldThrowExceptionIfFormDataSetAfterSubmitRequestCreated() {
+    public void shouldThrowExceptionIfFormDataNotAvailable() throws Exception {
+        test = new CsrfTokenTestImpl();
+        expectedException.expectMessage("A retrieve request must first be executed for this test");
+
+        test.getFormData();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestCreated() throws Exception {
+        test = new CsrfTokenTestImpl();
         expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("Unable to set form data after the submit request is created");
+        expectedException.expectMessage("A retrieve request must first be executed for this test");
+
+        test.prepareSubmit();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestExecuted() throws Exception {
+        test = new CsrfTokenTestImpl();
+        test.prepareRetrieve("test", "/test");
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("A retrieve request must first be executed for this test");
+
+        test.prepareSubmit();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPrepareSubmitInvokedMoreThanOnce() throws Exception {
         test = new CsrfTokenTestImpl();
         test.prepareRetrieve("test", "/test");
         test.notifyRequestComplete();
         test.prepareSubmit();
-
-        test.setFormData("test", "test");
-    }
-
-    @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestCreated() {
         expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request must first be executed for this test");
-        test = new CsrfTokenTestImpl();
-
-        test.prepareSubmit();
-    }
-
-    @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestExecuted() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request must first be executed for this test");
-        test = new CsrfTokenTestImpl();
-        test.prepareRetrieve("test", "/test");
-
-        test.prepareSubmit();
-    }
-
-    @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedMoreThanOnce() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A submit request has already been created for this test");
-        test = new CsrfTokenTestImpl();
-        test.prepareRetrieve("test", "/test");
-        test.notifyRequestComplete();
-        test.prepareSubmit();
+        expectedException.expectMessage("A submit request has already been prepared for this test");
 
         test.prepareSubmit();
     }

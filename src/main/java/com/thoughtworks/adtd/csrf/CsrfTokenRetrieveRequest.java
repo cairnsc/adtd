@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
-public class CsrfTokenRetrieveRequest implements CsrfTokenTestRequest, RequestExecutor {
+public class CsrfTokenRetrieveRequest implements RequestExecutor {
 
     private final CsrfTokenTestImpl testOrchestrator;
     private final String formAction;
@@ -23,7 +23,11 @@ public class CsrfTokenRetrieveRequest implements CsrfTokenTestRequest, RequestEx
         this.testOrchestrator = testOrchestrator;
         this.formAction = formAction;
         this.tokenInputName = tokenInputName;
-        request = new RequestImpl(this).method("GET");
+    }
+
+    public void prepareRequest() {
+        request = new RequestImpl(this)
+                .method("GET");
     }
 
     public Request getRequest() {

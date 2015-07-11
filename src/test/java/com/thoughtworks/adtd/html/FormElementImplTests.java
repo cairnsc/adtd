@@ -2,15 +2,19 @@ package com.thoughtworks.adtd.html;
 
 import com.thoughtworks.adtd.http.ElementAttributeException;
 import com.thoughtworks.adtd.http.ElementCountException;
+import com.thoughtworks.adtd.http.Request;
+import com.thoughtworks.adtd.http.RequestExecutor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.parser.Tag;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.net.URISyntaxException;
+import java.util.List;
 
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelector;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,11 +64,11 @@ public class FormElementImplTests {
     public void shouldThrowExceptionIfSelectExactElementCountDoesNotMatch() throws Exception {
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
         String elementName = "input";
-        formElement.addElement(new Element(Tag.valueOf(elementName), "/"));
-        formElement.addElement(new Element(Tag.valueOf(elementName), "/"));
+        formElement.append("<input></input>");
+        formElement.append("<input></input>");
         FormElementImpl form = new FormElementImpl(formElement);
         expectedException.expect(ElementCountException.class);
-        expectedException.expectMessage("Expected 1 element matching \"" + elementSelector(elementName) + "\", found 2");
+        expectedException.expectMessage("Expected 1 elements matching \"" + elementSelector(elementName) + "\", found 2");
 
         form.selectExact(elementSelector(elementName), 1);
     }
@@ -116,6 +120,64 @@ public class FormElementImplTests {
         expectedException.expectMessage("Element form with method=\"put\" is not a valid method");
 
         form.getMethod();
+    }
+
+    @Test
+    public void shouldGetAction() throws Exception {
+        String action = "/action";
+        Attributes attributes = new Attributes();
+        attributes.put("action", action);
+        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
+        FormElementImpl form = new FormElementImpl(formElement);
+
+        String formAction = form.getAction();
+
+        assertThat(formAction).isEqualTo(action);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfActionIsNotSpecified() throws Exception {
+        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
+        FormElementImpl form = new FormElementImpl(formElement);
+        expectedException.expect(ElementAttributeRequiredException.class);
+        expectedException.expectMessage("Element form is missing required attribute \"action\"");
+
+        form.getAction();
+    }
+
+    @Test
+    public void shouldGetFormDataFromFormElement() {
+        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
+        formElement.append("<input name=\"a\" value=\"b\"></input>");
+        formElement.append("<input name=\"c\" value=\"d\"></input>");
+        FormElementImpl form = new FormElementImpl(formElement);
+
+        List<FormFieldData> formInputs = form.getFormFields();
+
+        assertThat(formInputs.size()).isEqualTo(2);
+        FormFieldData formFieldData = formInputs.get(0);
+        assertThat(formFieldData.getName()).isEqualTo("a");
+        assertThat(formFieldData.getValue()).isEqualTo("b");
+        formFieldData = formInputs.get(1);
+        assertThat(formFieldData.getName()).isEqualTo("c");
+        assertThat(formFieldData.getValue()).isEqualTo("d");
+    }
+
+    @Test
+    public void shouldCreateRequest() throws Exception {
+        String method = "POST";
+        String action = "/action";
+        Attributes attributes = new Attributes();
+        attributes.put("method", method);
+        attributes.put("action", action);
+        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
+        FormElementImpl form = new FormElementImpl(formElement);
+        RequestExecutor requestExecutor = mock(RequestExecutor.class);
+
+        Request request = form.createRequest(requestExecutor);
+
+        assertThat(request.getMethod()).isEqualTo(method);
+        assertThat(request.getUri()).isEqualTo(action);
     }
 
 }

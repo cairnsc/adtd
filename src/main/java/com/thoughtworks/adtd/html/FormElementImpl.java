@@ -1,12 +1,16 @@
 package com.thoughtworks.adtd.html;
 
-import com.thoughtworks.adtd.http.ElementAttributeException;
-import com.thoughtworks.adtd.http.ElementCountException;
+import com.thoughtworks.adtd.http.*;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
@@ -14,6 +18,7 @@ public class FormElementImpl implements Form {
 
     private final FormElement formElement;
     private String method;
+    private URI action;
 
     public static FormElementImpl getFormFromDocument(Document doc, String formAction) throws Exception {
         Elements formElements = doc.select(elementSelectorWithAttribute("form", "action", formAction));
@@ -63,7 +68,34 @@ public class FormElementImpl implements Form {
         return method;
     }
 
+    public String getAction() throws Exception {
+        if (action == null) {
+            String actionValue = formElement.attr("action");
 
+            if (StringUtils.isBlank(actionValue)) {
+                throw new ElementAttributeRequiredException("form", "action");
+            }
+
+            action = new URI(actionValue);
+        }
+        return action.toString();
+    }
+
+    public List<FormFieldData> getFormFields() {
+        List<FormFieldData> formInputs = new ArrayList<FormFieldData>();
+        for (Connection.KeyVal keyVal : formElement.formData()) {
+            formInputs.add(new FormFieldData(null, keyVal.key(), keyVal.value()));
+        }
+        return formInputs;
+    }
+
+    public Request createRequest(RequestExecutor executor) throws Exception {
+        String action = getAction();
+        String method = getMethod();
+        return new RequestImpl(executor)
+                .method(method)
+                .uri(action);
+    }
 
 }
 

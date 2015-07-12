@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.csrf;
+package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.html.ElementAttributeException;
 import com.thoughtworks.adtd.html.ElementTypeException;

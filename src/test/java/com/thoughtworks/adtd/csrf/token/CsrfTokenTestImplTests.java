@@ -1,5 +1,6 @@
-package com.thoughtworks.adtd.csrf;
+package com.thoughtworks.adtd.csrf.token;
 
+import com.thoughtworks.adtd.csrf.token.CsrfTokenTestImpl;
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;

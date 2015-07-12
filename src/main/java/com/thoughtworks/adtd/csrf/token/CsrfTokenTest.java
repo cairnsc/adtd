@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.csrf;
+package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.Request;

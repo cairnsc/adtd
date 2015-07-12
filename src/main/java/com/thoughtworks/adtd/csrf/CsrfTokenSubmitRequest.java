@@ -13,6 +13,7 @@ public class CsrfTokenSubmitRequest implements RequestExecutor {
     private final FormData formData;
     private final String tokenInputName;
     private Request request;
+    private Response response;
 
     public CsrfTokenSubmitRequest(CsrfTokenTestImpl testOrchestrator, Form form, FormData formData, String tokenInputName) {
         this.testOrchestrator = testOrchestrator;
@@ -29,13 +30,17 @@ public class CsrfTokenSubmitRequest implements RequestExecutor {
         return request;
     }
 
+    public Response getResponse() {
+        return response;
+    }
+
     public Response execute(WebProxy proxy) throws Exception {
         request.expectIfUnset(status().is(HttpStatus.OK));
         return proxy.execute(request);
     }
 
     public void process(Request request, Response response) throws Exception {
+        this.response = response;
         testOrchestrator.notifyRequestComplete();
     }
-
 }

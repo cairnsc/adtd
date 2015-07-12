@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 public class CsrfTokenRetrieveRequestTests {
 
-    private static final String BASIC_FORM_BODY = "<html><body><form action=\"test\" method=\"post\"><input type=\"hidden\" name=\"test\" value=\"xyz\"></form></html>";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private CsrfTokenTestImpl testOrchestrator;
@@ -36,7 +35,7 @@ public class CsrfTokenRetrieveRequestTests {
     @Test
     public void shouldExecuteRetrieveRequestUsingWebProxy() throws Exception {
         createRetrieveRequest("test", "test");
-        createMockedResponse(200, BASIC_FORM_BODY);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
 
@@ -47,7 +46,7 @@ public class CsrfTokenRetrieveRequestTests {
     @Test
     public void shouldNotifyTestOrchestratorAfterProcessingResponse() throws Exception {
         createRetrieveRequest("test", "test");
-        createMockedResponse(200, BASIC_FORM_BODY);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
 
@@ -58,7 +57,7 @@ public class CsrfTokenRetrieveRequestTests {
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnset() throws Exception {
         createRetrieveRequest("test", "test");
-        createMockedResponse(200, BASIC_FORM_BODY);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_FORM_BODY);
 
         Response result = request.execute(webProxy);
 
@@ -86,7 +85,7 @@ public class CsrfTokenRetrieveRequestTests {
         String formAction = "test";
         String tokenInputName = "token";
         String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\">";
-        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
+        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
         createRetrieveRequest(formAction, tokenInputName);
         createMockedResponse(200, html);
         expectedException.expect(ElementAttributeException.class);

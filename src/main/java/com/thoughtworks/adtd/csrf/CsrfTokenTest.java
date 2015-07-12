@@ -2,6 +2,7 @@ package com.thoughtworks.adtd.csrf;
 
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.Request;
+import com.thoughtworks.adtd.http.ResponseValidator;
 
 /**
  * Test to validate CSRF protection using the synchronizer token pattern.
@@ -39,12 +40,17 @@ public interface CsrfTokenTest {
     FormData getFormData() throws Exception;
 
     /**
-     * Prepare a request to submit
-     * @return
+     * Prepare a request to submit the form with the CSRF token from the retrieve request included.
+     * @return Request.
      * @throws Exception
      */
     Request prepareSubmit() throws Exception;
 
-    void assertResponse() throws Exception;
+    /**
+     * Assert that the CSRF request succeeded.
+     * @param validator Response validator.
+     * @throws Exception
+     */
+    void assertResponse(ResponseValidator validator) throws Exception;
 
 }

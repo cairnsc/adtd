@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 public class CsrfTokenSubmitRequestTests {
 
-    public static final String BASIC_HTML = "<html></html>";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private CsrfTokenTestImpl testOrchestrator;
@@ -43,7 +42,7 @@ public class CsrfTokenSubmitRequestTests {
     @Test
     public void shouldExecuteRetrieveRequestUsingWebProxy() throws Exception {
         createSubmitRequest();
-        createMockedResponse(200, BASIC_HTML);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_HTML);
 
         Response result = submitRequest.execute(webProxy);
 
@@ -54,7 +53,7 @@ public class CsrfTokenSubmitRequestTests {
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnset() throws Exception {
         createSubmitRequest();
-        createMockedResponse(200, BASIC_HTML);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_HTML);
 
         Response result = request.execute(webProxy);
 
@@ -64,9 +63,20 @@ public class CsrfTokenSubmitRequestTests {
     }
 
     @Test
+    public void shouldRetainResponse() throws Exception {
+        createSubmitRequest();
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_HTML);
+
+        Response result = request.execute(webProxy);
+
+        Response submitRequestResponse = submitRequest.getResponse();
+        assertThat(submitRequestResponse).isEqualTo(response);
+    }
+
+    @Test
     public void shouldNotifyTestOrchestratorAfterProcessingResponse() throws Exception {
         createSubmitRequest();
-        createMockedResponse(200, BASIC_HTML);
+        createMockedResponse(200, CsrfTokenTestImplTests.BASIC_HTML);
 
         Response result = request.execute(webProxy);
 

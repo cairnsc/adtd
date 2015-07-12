@@ -1,5 +1,7 @@
 package com.thoughtworks.adtd.csrf;
 
+import com.thoughtworks.adtd.html.ElementAttributeException;
+import com.thoughtworks.adtd.html.ElementTypeException;
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import org.junit.Rule;

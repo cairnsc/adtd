@@ -1,7 +1,5 @@
 package com.thoughtworks.adtd.html;
 
-import com.thoughtworks.adtd.http.ElementAttributeException;
-import com.thoughtworks.adtd.http.ElementCountException;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import org.jsoup.Jsoup;
@@ -13,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelector;

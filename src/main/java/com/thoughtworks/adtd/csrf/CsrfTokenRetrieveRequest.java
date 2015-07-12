@@ -1,5 +1,7 @@
 package com.thoughtworks.adtd.csrf;
 
+import com.thoughtworks.adtd.html.ElementAttributeException;
+import com.thoughtworks.adtd.html.ElementTypeException;
 import com.thoughtworks.adtd.html.Form;
 import com.thoughtworks.adtd.html.FormElementImpl;
 import com.thoughtworks.adtd.http.*;

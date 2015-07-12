@@ -1,4 +1,4 @@
-package com.thoughtworks.adtd.http;
+package com.thoughtworks.adtd.html;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 

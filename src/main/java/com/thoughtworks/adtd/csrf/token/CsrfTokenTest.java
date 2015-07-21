@@ -7,13 +7,6 @@ import com.thoughtworks.adtd.http.ResponseValidator;
 /**
  * Test to validate CSRF protection using the synchronizer token pattern.
  *
- * Tests:
- *  1. Positive case: valid token submitted
- *  2. Negative case: missing token
- *  3. Negative case: invalid token
- *
- * TODO: iterator with strategies (single request or request per test)
- *
  * Read about the synchronizer token pattern at https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
  *
  * To execute CSRF tests:
@@ -26,11 +19,9 @@ public interface CsrfTokenTest {
 
     /**
      * Prepare a request to retrieve the page containing the form to be tested. By default the request method is GET.
-     * @param formAction Form action attribute.
-     * @param tokenInputName Name of the input tag containing the CSRF token.
      * @return Request.
      */
-    Request prepareRetrieve(String formAction, String tokenInputName);
+    Request prepareRetrieve();
 
     /**
      * Get the form data that will be used in the submit request. Can be modified until the request is executed.
@@ -48,9 +39,8 @@ public interface CsrfTokenTest {
 
     /**
      * Assert that the CSRF request succeeded.
-     * @param validator Response validator.
      * @throws Exception
      */
-    void assertResponse(ResponseValidator validator) throws Exception;
+    void assertResponse() throws Exception;
 
 }

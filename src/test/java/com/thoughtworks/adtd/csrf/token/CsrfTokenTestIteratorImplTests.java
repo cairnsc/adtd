@@ -1,22 +1,23 @@
-package com.thoughtworks.adtd.injection.xss;
+package com.thoughtworks.adtd.csrf.token;
 
-import com.thoughtworks.adtd.csrf.token.CsrfTokenTest;
+import com.thoughtworks.adtd.http.ResponseValidator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class XssTestIteratorImplTests {
+public class CsrfTokenTestIteratorImplTests {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private XssTestIteratorImpl iterator;
+    private CsrfTokenTestIteratorImpl iterator;
 
     @Before
     public void setUp() {
-        iterator = new XssTestIteratorImpl();
+        iterator = new CsrfTokenTestIteratorImpl("test", "test", mock(ResponseValidator.class));
     }
 
     @Test
@@ -32,7 +33,7 @@ public class XssTestIteratorImplTests {
         assertThat(count).isGreaterThan(0);
 
         for (int idx = 0; idx < count; idx++) {
-            XssTest next = iterator.next();
+            CsrfTokenTest next = iterator.next();
             assertThat(next).isNotNull();
         }
 

@@ -7,13 +7,21 @@ import com.thoughtworks.adtd.http.ResponseValidator;
 
 public class CsrfTokenTestImpl implements CsrfTokenTest {
 
+    private final String formAction;
     private CsrfTokenRetrieveRequest retrieveRequest;
     private CsrfTokenSubmitRequest submitRequest;
     public RequestExecutor currentRequest;
     private FormData formData;
     private String tokenInputName;
+    private final ResponseValidator validator;
 
-    public Request prepareRetrieve(String formAction, String tokenInputName) {
+    public CsrfTokenTestImpl(String formAction, String tokenInputName, ResponseValidator validator) {
+        this.formAction = formAction;
+        this.tokenInputName = tokenInputName;
+        this.validator = validator;
+    }
+
+    public Request prepareRetrieve() {
         if (retrieveRequest != null) {
             throw new IllegalStateException("A retrieve request has already been prepared for this test");
         }
@@ -21,7 +29,6 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
         retrieveRequest = new CsrfTokenRetrieveRequest(this, formAction, tokenInputName);
         retrieveRequest.prepareRequest();
         currentRequest = retrieveRequest;
-        this.tokenInputName = tokenInputName;
         return retrieveRequest.getRequest();
     }
 
@@ -55,7 +62,7 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
         return submitRequest.getRequest();
     }
 
-    public void assertResponse(ResponseValidator validator) throws Exception {
+    public void assertResponse() throws Exception {
         if (!submitRequestIsComplete()) {
             throw new IllegalStateException("A submit request must first be executed for this test");
         }

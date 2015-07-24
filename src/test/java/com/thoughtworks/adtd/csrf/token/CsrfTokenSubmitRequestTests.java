@@ -40,6 +40,21 @@ public class CsrfTokenSubmitRequestTests {
     }
 
     @Test
+    public void shouldMakeFormDataImmutableAndSetRequestParamsInPrepare() throws Exception {
+        testOrchestrator = mock(CsrfTokenTestImpl.class);
+        form = mock(Form.class);
+        formData = mock(FormData.class);
+        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData, "token");
+        Request request = mock(Request.class);
+        when(form.createRequest(submitRequest)).thenReturn(request);
+
+        submitRequest.prepareRequest();
+
+        verify(formData).setImmutable();
+        verify(formData).setRequestParams(request);
+    }
+
+    @Test
     public void shouldExecuteRetrieveRequestUsingWebProxy() throws Exception {
         createSubmitRequest();
         createMockedResponse(200, CsrfTokenTestImplTests.BASIC_HTML);

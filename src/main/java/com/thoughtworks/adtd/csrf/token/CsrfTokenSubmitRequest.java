@@ -24,6 +24,8 @@ public class CsrfTokenSubmitRequest implements RequestExecutor {
 
     public void prepareRequest() throws Exception {
         request = form.createRequest(this);
+        formData.setImmutable();
+        formData.setRequestParams(request);
     }
 
     public Request getRequest() {

@@ -1,6 +1,7 @@
 package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.html.FormData;
+import com.thoughtworks.adtd.html.FormDataImpl;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.http.ResponseValidator;
@@ -34,7 +35,7 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
 
     public void notifyRequestComplete() {
         if (currentRequest == retrieveRequest) {
-            formData = new FormData(retrieveRequest.getForm());
+            formData = new FormDataImpl(retrieveRequest.getForm());
         }
 
         currentRequest = null;

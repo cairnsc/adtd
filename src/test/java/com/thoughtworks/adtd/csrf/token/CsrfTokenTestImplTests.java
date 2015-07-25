@@ -1,6 +1,6 @@
 package com.thoughtworks.adtd.csrf.token;
 
-import com.thoughtworks.adtd.csrf.token.CsrfTokenTestImpl;
+import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;
@@ -11,9 +11,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CsrfTokenTestImplTests {
 
@@ -30,7 +28,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareRetrieveInvokedMoreThanOnce() {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         test.prepareRetrieve();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A retrieve request has already been prepared for this test");
@@ -39,8 +37,8 @@ public class CsrfTokenTestImplTests {
     }
 
     @Test
-    public void shouldGetFormDataAfterPrepareCompletes() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+    public void shouldGetFormDataAfterRetrieveRequestCompletes() throws Exception {
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
         test.prepareSubmit();
 
@@ -50,8 +48,19 @@ public class CsrfTokenTestImplTests {
     }
 
     @Test
+    public void shouldInvokeTestStrategyAfterRetrieveRequestCompletes() throws Exception {
+        TestStrategy testStrategy = mock(TestStrategy.class);
+        test = new CsrfTokenTestImpl(testStrategy, "test", "test", mock(ResponseValidator.class));
+
+        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
+
+        FormData formData = test.getFormData();
+        verify(testStrategy).mutateFormData(formData);
+    }
+
+    @Test
     public void shouldThrowExceptionIfFormDataNotAvailable() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         expectedException.expectMessage("A retrieve request must first be executed for this test");
 
         test.getFormData();
@@ -59,7 +68,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestCreated() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A retrieve request must first be executed for this test");
 
@@ -68,7 +77,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestExecuted() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         test.prepareRetrieve();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A retrieve request must first be executed for this test");
@@ -78,7 +87,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareSubmitInvokedMoreThanOnce() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
         test.prepareSubmit();
         expectedException.expect(IllegalStateException.class);
@@ -89,7 +98,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeSubmitRequestCreated() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A submit request must first be executed for this test");
 
@@ -98,7 +107,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeSubmitRequestExecuted() throws Exception {
-        test = new CsrfTokenTestImpl("test", "test", mock(ResponseValidator.class));
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
         prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
         test.prepareSubmit();
         expectedException.expect(IllegalStateException.class);
@@ -110,7 +119,7 @@ public class CsrfTokenTestImplTests {
     @Test
     public void shouldInvokeValidatorInAssertResponse() throws Exception {
         ResponseValidator responseValidator = mock(ResponseValidator.class);
-        test = new CsrfTokenTestImpl("test", "test", responseValidator);
+        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", responseValidator);
         prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
         prepareAndExecuteSubmitRequest(200, BASIC_HTML);
 

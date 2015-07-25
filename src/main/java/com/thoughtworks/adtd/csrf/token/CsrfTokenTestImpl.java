@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.csrf.token;
 
+import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.html.FormDataImpl;
 import com.thoughtworks.adtd.http.Request;
@@ -8,6 +9,7 @@ import com.thoughtworks.adtd.http.ResponseValidator;
 
 public class CsrfTokenTestImpl implements CsrfTokenTest {
 
+    private final TestStrategy testStrategy;
     private final String formAction;
     private CsrfTokenRetrieveRequest retrieveRequest;
     private CsrfTokenSubmitRequest submitRequest;
@@ -16,7 +18,9 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
     private String tokenInputName;
     private final ResponseValidator validator;
 
-    public CsrfTokenTestImpl(String formAction, String tokenInputName, ResponseValidator validator) {
+    public CsrfTokenTestImpl(TestStrategy testStrategy, String formAction, String tokenInputName, ResponseValidator validator) {
+        this.testStrategy = testStrategy;
+
         this.formAction = formAction;
         this.tokenInputName = tokenInputName;
         this.validator = validator;
@@ -36,6 +40,7 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
     public void notifyRequestComplete() {
         if (currentRequest == retrieveRequest) {
             formData = new FormDataImpl(retrieveRequest.getForm());
+            testStrategy.mutateFormData(formData);
         }
 
         currentRequest = null;
@@ -57,7 +62,7 @@ public class CsrfTokenTestImpl implements CsrfTokenTest {
             throw new IllegalStateException("A retrieve request must first be executed for this test");
         }
 
-        submitRequest = new CsrfTokenSubmitRequest(this, retrieveRequest.getForm(), formData, tokenInputName);
+        submitRequest = new CsrfTokenSubmitRequest(this, retrieveRequest.getForm(), formData);
         submitRequest.prepareRequest();
         currentRequest = submitRequest;
         return submitRequest.getRequest();

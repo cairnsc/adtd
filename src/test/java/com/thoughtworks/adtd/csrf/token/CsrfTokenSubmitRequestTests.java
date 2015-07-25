@@ -32,7 +32,7 @@ public class CsrfTokenSubmitRequestTests {
         testOrchestrator = mock(CsrfTokenTestImpl.class);
         form = mock(Form.class);
         formData = mock(FormData.class);
-        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData, "token");
+        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData);
 
         submitRequest.prepareRequest();
 
@@ -44,7 +44,7 @@ public class CsrfTokenSubmitRequestTests {
         testOrchestrator = mock(CsrfTokenTestImpl.class);
         form = mock(Form.class);
         formData = mock(FormData.class);
-        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData, "token");
+        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData);
         Request request = mock(Request.class);
         when(form.createRequest(submitRequest)).thenReturn(request);
 
@@ -103,7 +103,7 @@ public class CsrfTokenSubmitRequestTests {
         testOrchestrator = mock(CsrfTokenTestImpl.class);
         form = mock(Form.class);
         formData = mock(FormData.class);
-        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData, "token");
+        submitRequest = new CsrfTokenSubmitRequest(testOrchestrator, form, formData);
         request = createRequest();
         when(form.createRequest(submitRequest)).thenReturn(request);
         submitRequest.prepareRequest();

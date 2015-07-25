@@ -11,15 +11,13 @@ public class CsrfTokenSubmitRequest implements RequestExecutor {
     private final CsrfTokenTestImpl testOrchestrator;
     private final Form form;
     private final FormData formData;
-    private final String tokenInputName;
     private Request request;
     private Response response;
 
-    public CsrfTokenSubmitRequest(CsrfTokenTestImpl testOrchestrator, Form form, FormData formData, String tokenInputName) {
+    public CsrfTokenSubmitRequest(CsrfTokenTestImpl testOrchestrator, Form form, FormData formData) {
         this.testOrchestrator = testOrchestrator;
         this.form = form;
         this.formData = formData;
-        this.tokenInputName = tokenInputName;
     }
 
     public void prepareRequest() throws Exception {

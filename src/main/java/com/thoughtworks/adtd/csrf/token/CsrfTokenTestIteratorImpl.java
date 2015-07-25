@@ -2,6 +2,9 @@ package com.thoughtworks.adtd.csrf.token;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
+import com.thoughtworks.adtd.csrf.token.strategies.TestStrategyEmptyToken;
+import com.thoughtworks.adtd.csrf.token.strategies.TestStrategyInvalidToken;
+import com.thoughtworks.adtd.csrf.token.strategies.TestStrategyPositive;
 import com.thoughtworks.adtd.http.ResponseValidator;
 
 import java.util.ArrayList;
@@ -50,7 +53,9 @@ public class CsrfTokenTestIteratorImpl implements CsrfTokenTestIterator {
         this.validator = validator;
         // list may not be the best way to do this long term
         testList = new ArrayList<CsrfTokenTest>();
-        testList.add(new CsrfTokenTestImpl(formAction, tokenInputName, validator));
+        testList.add(new CsrfTokenTestImpl(new TestStrategyPositive(),formAction, tokenInputName, validator));
+        testList.add(new CsrfTokenTestImpl(new TestStrategyEmptyToken(tokenInputName),formAction, tokenInputName, validator));
+        testList.add(new CsrfTokenTestImpl(new TestStrategyInvalidToken(tokenInputName),formAction, tokenInputName, validator));
         iterator = testList.iterator();
     }
 

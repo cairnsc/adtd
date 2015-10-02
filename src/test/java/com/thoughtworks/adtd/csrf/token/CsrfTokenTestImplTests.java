@@ -1,131 +1,128 @@
 package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
+import com.thoughtworks.adtd.html.Form;
 import com.thoughtworks.adtd.html.FormData;
-import com.thoughtworks.adtd.http.Request;
-import com.thoughtworks.adtd.http.Response;
-import com.thoughtworks.adtd.http.ResponseValidator;
-import com.thoughtworks.adtd.http.WebProxy;
+import com.thoughtworks.adtd.http.*;
+import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
+
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class CsrfTokenTestImplTests {
-
     public static final String BASIC_HTML = "<html></html>";
-    public static final String BASIC_FORM_BODY = "<html><body><form action=\"test\" method=\"post\"><input type=\"hidden\" name=\"test\" value=\"xyz\"></form></html>";
+    public static final String BASIC_FORM_BODY = "<html><body><form action=\"test\" method=\"post\"><input type=\"hidden\" name=\"testToken\" value=\"xyz\"></form></html>";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private CsrfTokenTestImpl test;
     private WebProxy webProxy;
-    private Request retrieveRequest;
-    private Response retrieveResponse;
-    private Request submitRequest;
-    private Response submitResponse;
+    private TestStrategy testStrategy;
+    private Form form;
+    private FormData formData;
+    private ResponseValidator responseValidator;
+    private CsrfTokenTestImpl test;
+    private Request request;
+    private Response response;
 
     @Test
-    public void shouldThrowExceptionIfPrepareRetrieveInvokedMoreThanOnce() {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        test.prepareRetrieve();
+    public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
+        createTest("testToken");
+        test.prepare();
         expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request has already been prepared for this test");
+        expectedException.expectMessage("A request has already been prepared for this test");
 
-        test.prepareRetrieve();
+        test.prepare();
     }
 
     @Test
-    public void shouldGetFormDataAfterRetrieveRequestCompletes() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
-        test.prepareSubmit();
+    public void shouldPrepareRequest() throws Exception {
+        createTest("testToken");
 
-        FormData formData = test.getFormData();
+        test.prepare();
 
-        assertThat(formData).isNotNull();
+        InOrder inOrder = inOrder(form, testStrategy, formData);
+        inOrder.verify(form).createRequest(test);
+        inOrder.verify(testStrategy).mutateFormData(formData);
+        inOrder.verify(formData).setImmutable();
+        inOrder.verify(formData).setRequestParams(request);
     }
 
     @Test
-    public void shouldInvokeTestStrategyAfterRetrieveRequestCompletes() throws Exception {
-        TestStrategy testStrategy = mock(TestStrategy.class);
-        test = new CsrfTokenTestImpl(testStrategy, "test", "test", mock(ResponseValidator.class));
+    public void shouldExecuteRequestUsingWebProxy() throws Exception {
+        createTest("testToken");
 
-        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
+        Response result = prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_HTML);
 
-        FormData formData = test.getFormData();
-        verify(testStrategy).mutateFormData(formData);
+        assertThat(result).isEqualTo(response);
+        verify(webProxy).execute(request);
     }
 
     @Test
-    public void shouldThrowExceptionIfFormDataNotAvailable() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        expectedException.expectMessage("A retrieve request must first be executed for this test");
+    public void shouldRegisterHasStatusCodeConditionInRequestIfUnsetDuringExecute() throws Exception {
+        createTest("testToken");
 
-        test.getFormData();
+        prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_HTML);
+
+        Collection<ResponseCondition> expectations = request.getExpectations();
+        // REVISIT: should assert that it was added only if it was unset
+        assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
     }
 
     @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestCreated() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
+    public void shouldThrowExceptionInAssertResponseBeforeRequestCreated() throws Exception {
+        createTest("testToken");
         expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request must first be executed for this test");
-
-        test.prepareSubmit();
-    }
-
-    @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedBeforeRetrieveRequestExecuted() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        test.prepareRetrieve();
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A retrieve request must first be executed for this test");
-
-        test.prepareSubmit();
-    }
-
-    @Test
-    public void shouldThrowExceptionIfPrepareSubmitInvokedMoreThanOnce() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
-        test.prepareSubmit();
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A submit request has already been prepared for this test");
-
-        test.prepareSubmit();
-    }
-
-    @Test
-    public void shouldThrowExceptionInAssertResponseBeforeSubmitRequestCreated() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A submit request must first be executed for this test");
+        expectedException.expectMessage("A request must first be prepared and executed for this test");
 
         test.assertResponse();
     }
 
     @Test
-    public void shouldThrowExceptionInAssertResponseBeforeSubmitRequestExecuted() throws Exception {
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", mock(ResponseValidator.class));
-        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
-        test.prepareSubmit();
+    public void shouldThrowExceptionInAssertResponseBeforeRequestExecuted() throws Exception {
+        createTest("testToken");
+        test.prepare();
         expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A submit request must first be executed for this test");
+        expectedException.expectMessage("A request must first be prepared and executed for this test");
 
         test.assertResponse();
     }
 
     @Test
     public void shouldInvokeValidatorInAssertResponse() throws Exception {
-        ResponseValidator responseValidator = mock(ResponseValidator.class);
-        test = new CsrfTokenTestImpl(mock(TestStrategy.class), "test", "test", responseValidator);
-        prepareAndExecuteRetrieveRequest(200, BASIC_FORM_BODY);
-        prepareAndExecuteSubmitRequest(200, BASIC_HTML);
+        createTest("testToken");
+        prepareAndExecuteRequest(200, BASIC_HTML);
 
         test.assertResponse();
 
-        verify(responseValidator).validate(submitRequest, submitResponse);
+        verify(responseValidator).validate(request, response);
+    }
+
+    private void createTest(String tokenInputName) throws Exception {
+        testStrategy = mock(TestStrategy.class);
+        form = mock(Form.class);
+        formData = mock(FormData.class);
+        responseValidator = mock(ResponseValidator.class);
+        test = new CsrfTokenTestImpl(testStrategy, tokenInputName, form, formData, responseValidator);
+        request = createRequest();
+        when(form.createRequest(test)).thenReturn(request);
+    }
+
+    private Request createRequest() throws Exception {
+        Request request = new RequestImpl(test);
+        request.method("POST");
+        return request;
+    }
+
+    private Response prepareAndExecuteRequest(int statusCode, String body) throws Exception {
+        Request preparedRequest = test.prepare();
+        assertThat(preparedRequest).isEqualTo(request);
+        response = createMockedResponse(preparedRequest, statusCode, body);
+        return request.execute(webProxy);
     }
 
     private Response createMockedResponse(Request request, int statusCode, String body) throws Exception {
@@ -136,17 +133,4 @@ public class CsrfTokenTestImplTests {
         when(webProxy.execute(request)).thenReturn(response);
         return response;
     }
-
-    private void prepareAndExecuteRetrieveRequest(int statusCode, String basicFormBody) throws Exception {
-        retrieveRequest = test.prepareRetrieve();
-        retrieveResponse = createMockedResponse(retrieveRequest, statusCode, basicFormBody);
-        retrieveRequest.execute(webProxy);
-    }
-
-    private void prepareAndExecuteSubmitRequest(int statusCode, String body) throws Exception {
-        submitRequest = test.prepareSubmit();
-        submitResponse = createMockedResponse(submitRequest, statusCode, body);
-        submitRequest.execute(webProxy);
-    }
-
 }

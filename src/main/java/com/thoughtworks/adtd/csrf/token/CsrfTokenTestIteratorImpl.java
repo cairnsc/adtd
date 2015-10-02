@@ -20,7 +20,6 @@ import java.util.List;
  * TODO: iterator with strategies (single request or request per test)
  */
 public class CsrfTokenTestIteratorImpl implements CsrfTokenTestIterator {
-
     public static Iterable<Object[]> asIterableOfArrays(final String formAction, final String tokenInputName, final ResponseValidator validator) {
         return FluentIterable
                 .from(new Iterable<CsrfTokenTest>() {
@@ -53,9 +52,9 @@ public class CsrfTokenTestIteratorImpl implements CsrfTokenTestIterator {
         this.validator = validator;
         // list may not be the best way to do this long term
         testList = new ArrayList<CsrfTokenTest>();
-        testList.add(new CsrfTokenTestImpl(new TestStrategyPositive(),formAction, tokenInputName, validator));
-        testList.add(new CsrfTokenTestImpl(new TestStrategyEmptyToken(tokenInputName),formAction, tokenInputName, validator));
-        testList.add(new CsrfTokenTestImpl(new TestStrategyInvalidToken(tokenInputName),formAction, tokenInputName, validator));
+//        testList.add(new CsrfTokenTestImpl(new TestStrategyPositive(), tokenInputName, "", validator));
+//        testList.add(new CsrfTokenTestImpl(new TestStrategyEmptyToken(tokenInputName), tokenInputName, "", validator));
+//        testList.add(new CsrfTokenTestImpl(new TestStrategyInvalidToken(tokenInputName), tokenInputName, "", validator));
         iterator = testList.iterator();
     }
 
@@ -74,5 +73,4 @@ public class CsrfTokenTestIteratorImpl implements CsrfTokenTestIterator {
     public int count() {
         return testList.size();
     }
-
 }

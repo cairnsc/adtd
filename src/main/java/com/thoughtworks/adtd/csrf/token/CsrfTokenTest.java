@@ -18,24 +18,11 @@ import com.thoughtworks.adtd.http.ResponseValidator;
 public interface CsrfTokenTest {
 
     /**
-     * Prepare a request to retrieve the page containing the form to be tested. By default the request method is GET.
-     * @return Request.
-     */
-    Request prepareRetrieve();
-
-    /**
-     * Get the form data that will be used in the submit request. Can be modified until the request is executed.
-     * @return Form data.
-     * @throws Exception The form data is not available.
-     */
-    FormData getFormData() throws Exception;
-
-    /**
      * Prepare a request to submit the form with the CSRF token from the retrieve request included.
      * @return Request.
      * @throws Exception
      */
-    Request prepareSubmit() throws Exception;
+    Request prepare() throws Exception;
 
     /**
      * Assert that the CSRF request succeeded.

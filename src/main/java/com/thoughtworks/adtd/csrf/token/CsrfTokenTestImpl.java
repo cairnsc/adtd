@@ -1,87 +1,60 @@
 package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
+import com.thoughtworks.adtd.html.Form;
 import com.thoughtworks.adtd.html.FormData;
-import com.thoughtworks.adtd.html.FormDataImpl;
-import com.thoughtworks.adtd.http.Request;
-import com.thoughtworks.adtd.http.RequestExecutor;
-import com.thoughtworks.adtd.http.ResponseValidator;
+import com.thoughtworks.adtd.http.*;
 
-public class CsrfTokenTestImpl implements CsrfTokenTest {
+import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
+public class CsrfTokenTestImpl implements CsrfTokenTest, RequestExecutor {
     private final TestStrategy testStrategy;
-    private final String formAction;
-    private CsrfTokenRetrieveRequest retrieveRequest;
-    private CsrfTokenSubmitRequest submitRequest;
-    public RequestExecutor currentRequest;
-    private FormData formData;
-    private String tokenInputName;
+    private final String tokenInputName;
+    private final Form form;
+    private final FormData formData;
     private final ResponseValidator validator;
+    private Request request;
+    private Response response;
 
-    public CsrfTokenTestImpl(TestStrategy testStrategy, String formAction, String tokenInputName, ResponseValidator validator) {
+    public CsrfTokenTestImpl(TestStrategy testStrategy, String tokenInputName, Form form, FormData formData,
+                             ResponseValidator validator) {
         this.testStrategy = testStrategy;
-
-        this.formAction = formAction;
         this.tokenInputName = tokenInputName;
+        this.form = form;
+        this.formData = formData;
         this.validator = validator;
     }
 
-    public Request prepareRetrieve() {
-        if (retrieveRequest != null) {
-            throw new IllegalStateException("A retrieve request has already been prepared for this test");
+    public Request prepare() throws Exception {
+        if (request != null) {
+            throw new IllegalStateException("A request has already been prepared for this test");
         }
 
-        retrieveRequest = new CsrfTokenRetrieveRequest(this, formAction, tokenInputName);
-        retrieveRequest.prepareRequest();
-        currentRequest = retrieveRequest;
-        return retrieveRequest.getRequest();
+        request = form.createRequest(this);
+        testStrategy.mutateFormData(formData);
+        formData.setImmutable();
+        formData.setRequestParams(request);
+        return request;
     }
 
-    public void notifyRequestComplete() {
-        if (currentRequest == retrieveRequest) {
-            formData = new FormDataImpl(retrieveRequest.getForm());
-            testStrategy.mutateFormData(formData);
-        }
-
-        currentRequest = null;
+    public Response execute(WebProxy proxy) throws Exception {
+        request.expectIfUnset(status().is(HttpStatus.OK));
+        return proxy.execute(request);
     }
 
-    public FormData getFormData() throws Exception {
-        if (!retrieveRequestIsComplete()) {
-            throw new IllegalStateException("A retrieve request must first be executed for this test");
-        }
-        return formData;
-    }
-
-    public Request prepareSubmit() throws Exception {
-        if (submitRequest != null) {
-            throw new IllegalStateException("A submit request has already been prepared for this test");
-        }
-
-        if (!retrieveRequestIsComplete()) {
-            throw new IllegalStateException("A retrieve request must first be executed for this test");
-        }
-
-        submitRequest = new CsrfTokenSubmitRequest(this, retrieveRequest.getForm(), formData);
-        submitRequest.prepareRequest();
-        currentRequest = submitRequest;
-        return submitRequest.getRequest();
+    public void process(Request request, Response response) throws Exception {
+        this.response = response;
     }
 
     public void assertResponse() throws Exception {
-        if (!submitRequestIsComplete()) {
-            throw new IllegalStateException("A submit request must first be executed for this test");
+        if (!requestIsComplete()) {
+            throw new IllegalStateException("A request must first be prepared and executed for this test");
         }
 
-        validator.validate(submitRequest.getRequest(), submitRequest.getResponse());
+        validator.validate(request, response);
     }
 
-    private boolean retrieveRequestIsComplete() {
-        return (retrieveRequest != null && currentRequest != retrieveRequest);
+    private boolean requestIsComplete() {
+        return (request != null && response != null);
     }
-
-    private boolean submitRequestIsComplete() {
-        return (submitRequest != null && currentRequest != submitRequest);
-    }
-
 }

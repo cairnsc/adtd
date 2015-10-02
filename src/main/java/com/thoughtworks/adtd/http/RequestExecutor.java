@@ -10,7 +10,6 @@ package com.thoughtworks.adtd.http;
  *  1c. RequestExecutor.process(Request, Response)
  */
 public interface RequestExecutor {
-
     /**
      * Execute the request against a web proxy. The executor has a final opportunity to manipulate the request before
      * executing it.
@@ -27,5 +26,4 @@ public interface RequestExecutor {
      * @throws Exception
      */
     void process(Request request, Response response) throws Exception;
-
 }

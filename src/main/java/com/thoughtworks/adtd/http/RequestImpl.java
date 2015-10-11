@@ -1,34 +1,36 @@
 package com.thoughtworks.adtd.http;
 
-import com.thoughtworks.adtd.util.MultiValueLinkedHashMap;
-import com.thoughtworks.adtd.util.MultiValueMap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-public class RequestImpl implements Request {
+import static com.google.common.collect.Lists.newArrayList;
 
+public class RequestImpl implements Request {
     private RequestExecutor executor;
     private String method;
     private String uri;
-    private final MultiValueMap<String, String> headers;
-    private final MultiValueMap<String, String> params;
+    private final LinkedListMultimap<String, String> headers;
+    private final LinkedListMultimap<String, String> params;
     private final List<ResponseCondition> responseExpectations;
+    private final List<ResponseProcessor> responseProcessors;
     private Response response;
 
     public RequestImpl(RequestExecutor executor) {
         this.executor = executor;
-        headers = new MultiValueLinkedHashMap<String, String>();
-        params = new MultiValueLinkedHashMap<String, String>();
-        responseExpectations = new ArrayList<ResponseCondition>();
+        headers = LinkedListMultimap.create();
+        params = LinkedListMultimap.create();
+        responseExpectations = newArrayList();
+        responseProcessors = newArrayList();
+        processWith(executor);
     }
 
     public Request method(String value) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
-        }
-
+        checkMutability();
         method = value;
         return this;
     }
@@ -38,10 +40,7 @@ public class RequestImpl implements Request {
     }
 
     public Request uri(String value) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
-        }
-
+        checkMutability();
         uri = value;
         return this;
     }
@@ -51,60 +50,59 @@ public class RequestImpl implements Request {
     }
 
     public Request header(String name, String... values) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
+        checkMutability();
+        for (String value : values) {
+            headers.put(name, value);
         }
-
-        headers.add(name, values);
         return this;
     }
 
-    public MultiValueMap<String, String> getHeaders() {
-        return headers;
+    public Multimap<String, String> getHeaders() {
+        return Multimaps.unmodifiableMultimap(headers);
     }
 
     public Request param(String name, String... values) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
+        checkMutability();
+        for (String value : values) {
+            params.put(name, value);
         }
-
-        params.add(name, values);
         return this;
     }
 
-    public MultiValueMap<String, String> getParams() {
-        return params;
+    public Multimap<String, String> getParams() {
+        return Multimaps.unmodifiableMultimap(params);
     }
 
     public Request expect(ResponseCondition condition) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
-        }
-
+        checkMutability();
         responseExpectations.add(condition);
         return this;
     }
 
     public Request expectIfUnset(ResponseCondition condition) {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
-        }
-
+        checkMutability();
         if (!hasResponseExpectationOfType(condition.getClass())) {
             responseExpectations.add(condition);
         }
         return this;
     }
 
-    public Collection<ResponseCondition> getExpectations() {
-        // REVISIT: return an immutable collection
-        return responseExpectations;
+    public List<ResponseCondition> getExpectations() {
+        return Collections.unmodifiableList(responseExpectations);
+    }
+
+    public Request processWith(ResponseProcessor processor) {
+        checkMutability();
+        responseProcessors.add(processor);
+        return this;
+    }
+
+    public List<ResponseProcessor> getResponseProcessors() {
+        return Collections.unmodifiableList(responseProcessors);
     }
 
     public Response execute(WebProxy proxy) throws Exception {
-        if (response != null) {
-            throw new IllegalStateException("The test has already been executed");
-        }
+        checkMutability();
 
         response = executor.execute(proxy);
         if (response == null) {
@@ -112,9 +110,15 @@ public class RequestImpl implements Request {
         }
 
         verifyConditions();
-        executor.process(this, response);
+        processResponse();
 
         return response;
+    }
+
+    private void processResponse() throws Exception {
+        for (ResponseProcessor processor : responseProcessors) {
+            processor.process(this, response);
+        }
     }
 
     public Response getResponse() {
@@ -136,4 +140,9 @@ public class RequestImpl implements Request {
         }
     }
 
+    private void checkMutability() {
+        if (response != null) {
+            throw new IllegalStateException("The test has already been executed");
+        }
+    }
 }

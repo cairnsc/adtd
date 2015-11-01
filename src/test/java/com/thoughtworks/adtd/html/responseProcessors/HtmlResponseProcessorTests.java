@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class HtmlResponseProcessorImplTests {
+public class HtmlResponseProcessorTests {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -22,14 +22,14 @@ public class HtmlResponseProcessorImplTests {
     public void shouldThrowExceptionInGetDocumentIfResponseNotProcessed() {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A response has not yet been processed");
-        HtmlResponseProcessorImpl processor = new HtmlResponseProcessorImpl();
+        HtmlResponseProcessor processor = new HtmlResponseProcessor();
 
         processor.getDocument();
     }
 
     @Test
     public void shouldProcessResponseBody() throws Exception {
-        HtmlResponseProcessorImpl processor = new HtmlResponseProcessorImpl();
+        HtmlResponseProcessor processor = new HtmlResponseProcessor();
         Response response = mock(Response.class);
         when(response.getBody()).thenReturn(BasicHtml.HTML);
 

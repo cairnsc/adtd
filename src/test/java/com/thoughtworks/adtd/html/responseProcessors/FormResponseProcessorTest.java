@@ -14,15 +14,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FormResponseProcessorImplTest {
+public class FormResponseProcessorTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void shouldThrowExceptionInGetDocumentIfResponseNotReceived() throws Exception {
+    public void shouldThrowExceptionInGetFormIfResponseNotReceived() throws Exception {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A response has not yet been processed");
-        FormResponseProcessorImpl processor = new FormResponseProcessorImpl(mock(HtmlResponseProcessor.class), BasicHtmlForm.FORM_ACTION);
+        FormResponseProcessor processor = new FormResponseProcessor(mock(HtmlResponseProcessor.class), BasicHtmlForm.FORM_ACTION);
 
         processor.getForm();
     }
@@ -32,7 +32,7 @@ public class FormResponseProcessorImplTest {
         HtmlResponseProcessor htmlResponseProcessor = mock(HtmlResponseProcessor.class);
         Document document = Jsoup.parse(BasicHtmlForm.HTML);
         when(htmlResponseProcessor.getDocument()).thenReturn(document);
-        FormResponseProcessorImpl processor = new FormResponseProcessorImpl(htmlResponseProcessor, BasicHtmlForm.FORM_ACTION);
+        FormResponseProcessor processor = new FormResponseProcessor(htmlResponseProcessor, BasicHtmlForm.FORM_ACTION);
 
         processor.process(mock(Request.class), mock(Response.class));
 

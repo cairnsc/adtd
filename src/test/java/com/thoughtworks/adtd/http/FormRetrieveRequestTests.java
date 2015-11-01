@@ -15,10 +15,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class FormRetrieveRequestImplTests {
+public class FormRetrieveRequestTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private FormRetrieveRequestImpl retrieveRequest;
+    private FormRetrieveRequest retrieveRequest;
     private WebProxy webProxy;
     private Request request;
     private Response response;
@@ -91,72 +91,15 @@ public class FormRetrieveRequestImplTests {
         createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
         createMockedResponse(HttpStatus.OK.getStatusCode(), BasicHtmlForm.HTML);
 
-        Response result = request.execute(webProxy);
+        request.execute(webProxy);
 
         Collection<ResponseCondition> expectations = request.getExpectations();
         // REVISIT: should assert that it was added only if it was unset
         assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
     }
 
-//    @Test
-//    public void shouldThrowExceptionIfTokenWillBeExposedInRequest() throws Exception {
-//        String formAction = "test";
-//        String tokenInputName = "token";
-//        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"123\" method=\"get\">";
-//        String html = "<html><body><form action=\"" + formAction + "\">" + tokenHtml + "</form></body></html>";
-//        createFormRetrieveRequest(formAction, tokenInputName);
-//        createMockedResponse(HttpStatus.OK.getStatusCode(), html);
-//        expectedException.expect(ElementTypeException.class);
-//        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has method=\"GET\", expected \"POST\"");
-//
-//        request.execute(webProxy);
-//    }
-
-//    @Test
-//    public void shouldThrowExceptionIfTokenInputValueIsNull() throws Exception {
-//        String formAction = "test";
-//        String tokenInputName = "token";
-//        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\">";
-//        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
-//        createFormRetrieveRequest(formAction, tokenInputName);
-//        createMockedResponse(HttpStatus.OK.getStatusCode(), html);
-//        expectedException.expect(ElementAttributeException.class);
-//        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
-//
-//        request.execute(webProxy);
-//    }
-//
-//    @Test
-//    public void shouldThrowExceptionIfTokenInputValueIsEmpty() throws Exception {
-//        String formAction = "test";
-//        String tokenInputName = "token";
-//        String tokenHtml = "<input type=\"hidden\" name=\"" + tokenInputName + "\" value=\"  \">";
-//        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
-//        createFormRetrieveRequest(formAction, tokenInputName);
-//        createMockedResponse(HttpStatus.OK.getStatusCode(), html);
-//        expectedException.expect(ElementAttributeException.class);
-//        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
-//
-//        request.execute(webProxy);
-//    }
-//
-//    @Test
-//    public void shouldThrowExceptionIfInputTokenIsNotHidden() throws Exception {
-//        String formAction = "test";
-//        String tokenInputName = "token";
-//        String inputType = "foo";
-//        String tokenHtml = "<input type=\"" + inputType + "\" name=\"" + tokenInputName + "\" value=\"123\">";
-//        String html = "<html><body><form action=\"" + formAction + "\" method=\"post\">" + tokenHtml + "</form></body></html>";
-//        createFormRetrieveRequest(formAction, tokenInputName);
-//        createMockedResponse(HttpStatus.OK.getStatusCode(), html);
-//        expectedException.expect(ElementTypeException.class);
-//        expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has type=\"" + inputType + "\", expected \"hidden\"");
-//
-//        request.execute(webProxy);
-//    }
-
     private void createFormRetrieveRequest(String formAction) throws Exception {
-        retrieveRequest = new FormRetrieveRequestImpl(formAction);
+        retrieveRequest = new FormRetrieveRequest(formAction);
         request = retrieveRequest.prepare();
     }
 

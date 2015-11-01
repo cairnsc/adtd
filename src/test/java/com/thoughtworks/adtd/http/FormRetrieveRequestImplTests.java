@@ -1,13 +1,16 @@
 package com.thoughtworks.adtd.http;
 
-import com.thoughtworks.adtd.csrf.token.CsrfTokenTestImplTests;
-import com.thoughtworks.adtd.html.Form;
+import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
+import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
+import com.thoughtworks.adtd.testutil.BasicHtmlForm;
+import com.thoughtworks.adtd.testutil.ListUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -21,8 +24,8 @@ public class FormRetrieveRequestImplTests {
     private Response response;
 
     @Test
-    public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() {
-        createFormRetrieveRequest("test");
+    public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request has already been prepared");
 
@@ -30,36 +33,52 @@ public class FormRetrieveRequestImplTests {
     }
 
     @Test
-    public void shouldUseGetMethodByDefaultInRequest() {
-        createFormRetrieveRequest("test");
+    public void shouldUseGetMethodByDefaultInRequest() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
 
         assertThat(request.getMethod()).isEqualTo("GET");
     }
 
     @Test
-    public void shouldThrowExceptionIfFormDataNotAvailable() throws Exception {
-        createFormRetrieveRequest("test");
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("A request must first be prepared and executed");
+    public void shouldProcessWithHtmlAndFormResponseProcessors() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
 
-        retrieveRequest.getForm();
+        List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
+        assertThat(responseProcessors.size()).isEqualTo(2);
+        int idx1 = ListUtil.indexOfType(responseProcessors, HtmlResponseProcessor.class);
+        int idx2 = ListUtil.indexOfType(responseProcessors, FormResponseProcessor.class);
+        assertThat(idx1).isNotNegative();
+        assertThat(idx2).isGreaterThan(idx1);
     }
 
     @Test
-    public void shouldGetForm() throws Exception {
-        createFormRetrieveRequest("test");
-        createMockedResponse(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_FORM_BODY);
+    public void shouldGetDocumentFromResponseProcessor() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+        createMockedResponse(HttpStatus.OK.getStatusCode(), BasicHtmlForm.HTML);
+
         request.execute(webProxy);
 
-        Form form = retrieveRequest.getForm();
+        List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
+        HtmlResponseProcessor processor = (HtmlResponseProcessor)ListUtil.getByType(responseProcessors, HtmlResponseProcessor.class);
+        assertThat(retrieveRequest.getDocument()).isEqualTo(processor.getDocument());
+    }
 
-        assertThat(form).isNotNull();
+    @Test
+    public void shouldGetFormDataFromResponseProcessor() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+        createMockedResponse(HttpStatus.OK.getStatusCode(), BasicHtmlForm.HTML);
+
+        request.execute(webProxy);
+
+        List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
+        FormResponseProcessor processor = (FormResponseProcessor)ListUtil.getByType(responseProcessors, FormResponseProcessor.class);
+        assertThat(retrieveRequest.getForm()).isEqualTo(processor.getForm());
     }
 
     @Test
     public void shouldExecuteRetrieveRequestUsingWebProxy() throws Exception {
-        createFormRetrieveRequest("test");
-        createMockedResponse(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_FORM_BODY);
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+        createMockedResponse(HttpStatus.OK.getStatusCode(), BasicHtmlForm.HTML);
 
         Response result = request.execute(webProxy);
 
@@ -69,8 +88,8 @@ public class FormRetrieveRequestImplTests {
 
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnset() throws Exception {
-        createFormRetrieveRequest("test");
-        createMockedResponse(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_FORM_BODY);
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+        createMockedResponse(HttpStatus.OK.getStatusCode(), BasicHtmlForm.HTML);
 
         Response result = request.execute(webProxy);
 
@@ -136,7 +155,7 @@ public class FormRetrieveRequestImplTests {
 //        request.execute(webProxy);
 //    }
 
-    private void createFormRetrieveRequest(String formAction) {
+    private void createFormRetrieveRequest(String formAction) throws Exception {
         retrieveRequest = new FormRetrieveRequestImpl(formAction);
         request = retrieveRequest.prepare();
     }

@@ -26,7 +26,6 @@ public class RequestImpl implements Request {
         params = LinkedListMultimap.create();
         responseExpectations = newArrayList();
         responseProcessors = newArrayList();
-        processWith(executor);
     }
 
     public Request method(String value) {

@@ -20,7 +20,7 @@ public class FormElementImpl implements Form {
     private String method;
     private URI action;
 
-    public static FormElementImpl getFormFromDocument(Document doc, String formAction) throws Exception {
+    public static Form getFormFromDocument(Document doc, String formAction) throws Exception {
         Elements formElements = doc.select(elementSelectorWithAttribute("form", "action", formAction));
         if (formElements.size() != 1) {
             throw new ElementCountException("form", 1, formElements.size(), "action", formAction);

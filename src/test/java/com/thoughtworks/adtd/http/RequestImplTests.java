@@ -27,14 +27,6 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldRegisterRequestExecutorAsResponseProcessor() throws Exception {
-        List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
-
-        assertThat(responseProcessors.size()).isEqualTo(1);
-        assertThat(responseProcessors).contains(requestExecutor);
-    }
-
-    @Test
     public void shouldSetMethod() {
         String methodName = "get";
 
@@ -264,32 +256,21 @@ public class RequestImplTests {
 
         request.execute(webProxy);
 
-        InOrder inOrder = inOrder(requestExecutor, processor1, processor2);
-        inOrder.verify(requestExecutor).process(request, response);
+        InOrder inOrder = inOrder(processor1, processor2);
         inOrder.verify(processor1).process(request, response);
         inOrder.verify(processor2).process(request, response);
     }
 
     @Test
-    public void shouldInvokeProcessInRequestExecutor() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
-
-        Response result = request.execute(webProxy);
-
-        assertThat(result).isEqualTo(response);
-        verify(requestExecutor).process(request, response);
-    }
-
-    @Test
-    public void shouldVerifyConditionsBeforeInvokingRequestExecutorProcess() throws Exception {
+    public void shouldVerifyConditionsBeforeInvokingResponseProcessors() throws Exception {
         WebProxy webProxy = mock(WebProxy.class);
         Response response = mock(Response.class);
         when(requestExecutor.execute(webProxy)).thenReturn(response);
         String conditionName = "RequestImplTest";
         TestResponseCondition condition = new TestResponseCondition(conditionName, true);
         request.expect(condition);
+        ResponseProcessor processor = mock(ResponseProcessor.class);
+        request.processWith(processor);
 
         try {
             request.execute(webProxy);
@@ -297,7 +278,7 @@ public class RequestImplTests {
             assertThat(ex.getMessage()).isEqualTo(conditionName);
         }
 
-        verify(requestExecutor, never()).process(request, response);
+        verify(processor, never()).process(request, response);
     }
 
     private void executeRequest() throws Exception {

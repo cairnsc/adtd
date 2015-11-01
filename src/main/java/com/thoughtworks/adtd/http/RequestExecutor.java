@@ -7,9 +7,8 @@ package com.thoughtworks.adtd.http;
  *  1. Request.execute(WebProxy)
  *  1a. RequestExecutor.execute(WebProxy)
  *  1b. Request verifies its conditions
- *  1c. RequestExecutor.process(Request, Response)
  */
-public interface RequestExecutor extends ResponseProcessor {
+public interface RequestExecutor {
     /**
      * Execute the request against a web proxy. The executor has a final opportunity to manipulate the request before
      * executing it.

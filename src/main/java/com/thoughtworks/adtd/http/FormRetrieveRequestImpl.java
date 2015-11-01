@@ -1,40 +1,45 @@
 package com.thoughtworks.adtd.http;
 
-import com.thoughtworks.adtd.html.*;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
+import com.thoughtworks.adtd.html.Form;
+import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
+import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessorImpl;
+import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
+import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessorImpl;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
-import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
 public class FormRetrieveRequestImpl implements FormRetrieveRequest, RequestExecutor {
     private final String formAction;
     private Request request;
-    private Form form;
+    private HtmlResponseProcessor htmlResponseProcessor;
+    private FormResponseProcessor formResponseProcessor;
 
     public FormRetrieveRequestImpl(String formAction) {
         this.formAction = formAction;
     }
 
-    public Request prepare() {
+    public Request prepare() throws Exception {
         if (request != null) {
             throw new IllegalStateException("A request has already been prepared");
         }
 
+        htmlResponseProcessor = new HtmlResponseProcessorImpl();
+        formResponseProcessor = new FormResponseProcessorImpl(htmlResponseProcessor, formAction);
         request = new RequestImpl(this)
-                .method("GET");
+                .method("GET")
+                .processWith(htmlResponseProcessor)
+                .processWith(formResponseProcessor);
 
         return request;
     }
 
+    public Document getDocument() throws Exception {
+        return htmlResponseProcessor.getDocument();
+    }
+
     public Form getForm() throws Exception {
-        if (!requestIsComplete()) {
-            throw new IllegalStateException("A request must first be prepared and executed");
-        }
-        return form;
+        return formResponseProcessor.getForm();
     }
 
     public Response execute(WebProxy proxy) throws Exception {
@@ -42,14 +47,14 @@ public class FormRetrieveRequestImpl implements FormRetrieveRequest, RequestExec
         return proxy.execute(request);
     }
 
-    public void process(Request request, Response response) throws Exception {
-        // REVISIT: check response content type to process result appropriately
-        String body = response.getBody();
-        Document doc = Jsoup.parse(body);
-        form = FormElementImpl.getFormFromDocument(doc, formAction);
-//        validateForm(form);
-//        validateTokenElement(form);
-    }
+//    public void process(Request request, Response response) throws Exception {
+//        // REVISIT: check response content type to process result appropriately
+//        String body = response.getBody();
+//        Document doc = Jsoup.parse(body);
+//        form = FormElementImpl.getFormFromDocument(doc, formAction);
+////        validateForm(form);
+////        validateTokenElement(form);
+//    }
 
     // REVISIT: CSRF test is a outside scope of basic retrieve request
     private void validateForm(Form form) throws Exception {
@@ -74,7 +79,7 @@ public class FormRetrieveRequestImpl implements FormRetrieveRequest, RequestExec
 //        }
     }
 
-    private boolean requestIsComplete() {
-        return (request != null && form != null);
-    }
+//    private boolean requestIsComplete() {
+//        return (request != null && form != null);
+//    }
 }

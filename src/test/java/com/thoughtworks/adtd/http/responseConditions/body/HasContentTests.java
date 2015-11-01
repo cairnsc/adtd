@@ -2,6 +2,7 @@ package com.thoughtworks.adtd.http.responseConditions.body;
 
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;
+import com.thoughtworks.adtd.testutil.BasicHtml;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HasContentTests {
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private Request request;
@@ -26,7 +26,7 @@ public class HasContentTests {
 
     @Test
     public void shouldNotThrowExceptionWhenShouldHaveContentAndResponseHasBody() throws Exception {
-        when(response.getBody()).thenReturn("<html><body>hi</body></html>");
+        when(response.getBody()).thenReturn(BasicHtml.HTML);
         HasContent condition = new HasContent(true);
 
         condition.match(request, response);
@@ -70,12 +70,11 @@ public class HasContentTests {
 
     @Test
     public void shouldThrowExceptionWhenShouldNotHaveContentAndHasResponseBody() throws Exception {
-        when(response.getBody()).thenReturn("<html><body>hi</body></html>");
+        when(response.getBody()).thenReturn(BasicHtml.HTML);
         expectedException.expect(AssertionFailureException.class);
         expectedException.expectMessage("HTTP response body is not empty");
         HasContent condition = new HasContent(false);
 
         condition.match(request, response);
     }
-
 }

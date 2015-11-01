@@ -5,6 +5,8 @@ import com.thoughtworks.adtd.html.Form;
 import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
+import com.thoughtworks.adtd.testutil.BasicHtml;
+import com.thoughtworks.adtd.testutil.BasicHtmlForm;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class CsrfTokenTestImplTests {
-    public static final String BASIC_HTML = "<html></html>";
-    public static final String BASIC_FORM_BODY = "<html><body><form action=\"test\" method=\"post\"><input type=\"hidden\" name=\"testToken\" value=\"xyz\"></form></html>";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private WebProxy webProxy;
@@ -31,7 +31,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request has already been prepared for this test");
@@ -41,7 +41,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldPrepareRequest() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
 
         test.prepare();
 
@@ -54,9 +54,9 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldExecuteRequestUsingWebProxy() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
 
-        Response result = prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_HTML);
+        Response result = prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
 
         assertThat(result).isEqualTo(response);
         verify(webProxy).execute(request);
@@ -64,9 +64,9 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnsetDuringExecute() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
 
-        prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), CsrfTokenTestImplTests.BASIC_HTML);
+        prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
 
         Collection<ResponseCondition> expectations = request.getExpectations();
         // REVISIT: should assert that it was added only if it was unset
@@ -75,7 +75,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestCreated() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
 
@@ -84,7 +84,7 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestExecuted() throws Exception {
-        createTest("testToken");
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
@@ -94,8 +94,8 @@ public class CsrfTokenTestImplTests {
 
     @Test
     public void shouldInvokeValidatorInAssertResponse() throws Exception {
-        createTest("testToken");
-        prepareAndExecuteRequest(200, BASIC_HTML);
+        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        prepareAndExecuteRequest(200, BasicHtml.HTML);
 
         test.assertResponse();
 

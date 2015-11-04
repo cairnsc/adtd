@@ -1,6 +1,7 @@
 package com.thoughtworks.adtd.http;
 
 import com.thoughtworks.adtd.html.Form;
+import com.thoughtworks.adtd.html.responseProcessors.CsrfFormTokenProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
 import org.jsoup.nodes.Document;
@@ -12,9 +13,17 @@ public class FormRetrieveRequest implements RequestExecutor {
     private Request request;
     private HtmlResponseProcessor htmlResponseProcessor;
     private FormResponseProcessor formResponseProcessor;
+    private CsrfFormTokenProcessor csrfFormTokenProcessor;
+    private String csrfTokenInputName;
 
     public FormRetrieveRequest(String formAction) {
         this.formAction = formAction;
+    }
+
+    public FormRetrieveRequest withCsrfToken(String tokenInputName) {
+        checkMutability();
+        this.csrfTokenInputName = tokenInputName;
+        return this;
     }
 
     /**
@@ -23,10 +32,7 @@ public class FormRetrieveRequest implements RequestExecutor {
      * @throws Exception
      */
     public Request prepare() throws Exception {
-        if (request != null) {
-            throw new IllegalStateException("A request has already been prepared");
-        }
-
+        checkMutability();
         htmlResponseProcessor = new HtmlResponseProcessor();
         formResponseProcessor = new FormResponseProcessor(htmlResponseProcessor, formAction);
         request = new RequestImpl(this)
@@ -34,6 +40,10 @@ public class FormRetrieveRequest implements RequestExecutor {
                 .processWith(htmlResponseProcessor)
                 .processWith(formResponseProcessor);
 
+        if (csrfTokenInputName != null) {
+            csrfFormTokenProcessor = new CsrfFormTokenProcessor(formResponseProcessor, csrfTokenInputName);
+            request.processWith(csrfFormTokenProcessor);
+        }
         return request;
     }
 
@@ -45,6 +55,7 @@ public class FormRetrieveRequest implements RequestExecutor {
     public Document getDocument() throws Exception {
         return htmlResponseProcessor.getDocument();
     }
+
 
     /**
      * Get form retrieved in the request.
@@ -58,5 +69,11 @@ public class FormRetrieveRequest implements RequestExecutor {
     public Response execute(WebProxy proxy) throws Exception {
         request.expectIfUnset(status().is(HttpStatus.OK));
         return proxy.execute(request);
+    }
+
+    private void checkMutability() {
+        if (request != null) {
+            throw new IllegalStateException("A request has already been prepared");
+        }
     }
 }

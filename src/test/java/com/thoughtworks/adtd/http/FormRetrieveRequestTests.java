@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.http;
 
+import com.thoughtworks.adtd.html.responseProcessors.CsrfFormTokenProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
@@ -22,6 +23,15 @@ public class FormRetrieveRequestTests {
     private WebProxy webProxy;
     private Request request;
     private Response response;
+
+    @Test
+    public void shouldThrowExceptionIfCsrfTokenSpecifiedWhenRequestPrepared() throws Exception {
+        createFormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("A request has already been prepared");
+
+        retrieveRequest.withCsrfToken(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+    }
 
     @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
@@ -48,6 +58,20 @@ public class FormRetrieveRequestTests {
         int idx1 = ListUtil.indexOfType(responseProcessors, HtmlResponseProcessor.class);
         int idx2 = ListUtil.indexOfType(responseProcessors, FormResponseProcessor.class);
         assertThat(idx1).isNotNegative();
+        assertThat(idx2).isGreaterThan(idx1);
+    }
+
+    @Test
+    public void shouldProcessWithCsrfFormTokenProcessor() throws Exception {
+        retrieveRequest = new FormRetrieveRequest(BasicHtmlForm.FORM_ACTION);
+
+        retrieveRequest.withCsrfToken(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        request = retrieveRequest.prepare();
+
+        List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
+        assertThat(responseProcessors.size()).isEqualTo(3);
+        int idx1 = ListUtil.indexOfType(responseProcessors, FormResponseProcessor.class);
+        int idx2 = ListUtil.indexOfType(responseProcessors, CsrfFormTokenProcessor.class);
         assertThat(idx2).isGreaterThan(idx1);
     }
 

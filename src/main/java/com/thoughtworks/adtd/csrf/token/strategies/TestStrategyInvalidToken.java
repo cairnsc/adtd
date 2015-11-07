@@ -5,11 +5,14 @@ import com.thoughtworks.adtd.html.FormFieldData;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class TestStrategyInvalidToken implements TestStrategy {
-
     private final String tokenInputName;
 
     public TestStrategyInvalidToken(String tokenInputName) {
         this.tokenInputName = tokenInputName;
+    }
+
+    public String getTokenInputName() {
+        return tokenInputName;
     }
 
     public void mutateFormData(FormData formData) {
@@ -17,5 +20,4 @@ public class TestStrategyInvalidToken implements TestStrategy {
         String newValue = RandomStringUtils.randomAlphanumeric(tokenField.getValue().length());
         formData.setFormField(tokenInputName, newValue);
     }
-
 }

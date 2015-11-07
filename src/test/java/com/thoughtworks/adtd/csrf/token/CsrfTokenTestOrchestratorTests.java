@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.csrf.token;
 
+import com.thoughtworks.adtd.html.Form;
 import com.thoughtworks.adtd.http.ResponseValidator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -9,15 +10,18 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class CsrfTokenTestIteratorImplTests {
-
+public class CsrfTokenTestOrchestratorTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private CsrfTokenTestIteratorImpl iterator;
+    private CsrfTokenTestOrchestrator iterator;
+    private Form formMock;
+    private ResponseValidator responseValidatorMock;
 
     @Before
     public void setUp() {
-        iterator = new CsrfTokenTestIteratorImpl("test", "test", mock(ResponseValidator.class));
+        formMock = mock(Form.class);
+        responseValidatorMock = mock(ResponseValidator.class);
+        iterator = new CsrfTokenTestOrchestrator(formMock, "test", responseValidatorMock);
     }
 
     @Test
@@ -39,5 +43,4 @@ public class CsrfTokenTestIteratorImplTests {
 
         assertThat(iterator.hasNext()).isFalse();
     }
-
 }

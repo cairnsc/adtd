@@ -1,6 +1,5 @@
 package com.thoughtworks.adtd.injection.xss;
 
-import com.thoughtworks.adtd.csrf.token.CsrfTokenTest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

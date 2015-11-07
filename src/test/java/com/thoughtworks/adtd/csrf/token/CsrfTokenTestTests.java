@@ -17,7 +17,7 @@ import java.util.Collection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class CsrfTokenTestImplTests {
+public class CsrfTokenTestTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private WebProxy webProxy;
@@ -25,7 +25,7 @@ public class CsrfTokenTestImplTests {
     private Form form;
     private FormData formData;
     private ResponseValidator responseValidator;
-    private CsrfTokenTestImpl test;
+    private CsrfTokenTest test;
     private Request request;
     private Response response;
 
@@ -107,7 +107,7 @@ public class CsrfTokenTestImplTests {
         form = mock(Form.class);
         formData = mock(FormData.class);
         responseValidator = mock(ResponseValidator.class);
-        test = new CsrfTokenTestImpl(testStrategy, tokenInputName, form, formData, responseValidator);
+        test = new CsrfTokenTest(testStrategy, form, formData, responseValidator);
         request = createRequest();
         when(form.createRequest(test)).thenReturn(request);
     }

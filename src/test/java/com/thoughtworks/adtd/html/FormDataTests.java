@@ -13,14 +13,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class FormDataImplTests {
+public class FormDataTests {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldBeMutable() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
 
         assertThat(formData.isMutable()).isTrue();
     }
@@ -33,7 +33,7 @@ public class FormDataImplTests {
         fieldsInForm.add(new FormFieldData(null, "c", "d"));
         when(form.getFormFields()).thenReturn(fieldsInForm);
 
-        FormDataImpl formData = new FormDataImpl(form);
+        FormData formData = new FormData(form);
 
         List<FormFieldData> formDataFields = formData.getFormFields();
         assertThat(formDataFields.size()).isEqualTo(2);
@@ -47,7 +47,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldSetImmutable() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
 
         formData.setImmutable();
 
@@ -56,7 +56,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldAddFormField() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
 
         String name = "a";
         String value = "b";
@@ -71,7 +71,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldThrowExceptionWhenImmutableInAddFormField() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         formData.setImmutable();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Form is immutable");
@@ -81,7 +81,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldGetFormField() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
 
         String name = "a";
         String value = "b";
@@ -95,7 +95,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldReturnNullIfFormFieldNotFound() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
 
         formData.addFormField("test", "test");
 
@@ -105,7 +105,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldSetFormField() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         String name = "a";
         formData.addFormField(name, "b");
 
@@ -118,7 +118,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldThrowExceptionWhenImmutableInSetFormField() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         formData.setFormField("a", "b");
         formData.setImmutable();
         expectedException.expect(IllegalStateException.class);
@@ -129,7 +129,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldAddFormFieldInSetIfFieldDoesNotExist() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         formData.addFormField("a", "b");
 
         String name = "c";
@@ -144,7 +144,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldThrowExceptionWhenImmutableInSetFormFieldIfFieldDoesNotExist() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         formData.setImmutable();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Form is immutable");
@@ -154,7 +154,7 @@ public class FormDataImplTests {
 
     @Test
     public void shouldSetRequestParams() {
-        FormDataImpl formData = new FormDataImpl();
+        FormData formData = new FormData();
         formData.setFormField("a", "b");
         formData.setFormField("c", "d");
         Request request = mock(Request.class);

@@ -1,7 +1,6 @@
 package com.thoughtworks.adtd.http;
 
 import com.google.common.collect.Multimap;
-import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,13 +16,13 @@ import static org.mockito.Mockito.*;
 public class RequestImplTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private RequestExecutor requestExecutor;
+    private RequestExecutor requestExecutorMock;
     private RequestImpl request;
 
     @Before
     public void setUp() {
-        requestExecutor = mock(RequestExecutor.class);
-        request = new RequestImpl(requestExecutor);
+        requestExecutorMock = mock(RequestExecutor.class);
+        request = new RequestImpl(requestExecutorMock);
     }
 
     @Test
@@ -144,45 +143,45 @@ public class RequestImplTests {
 
     @Test
     public void shouldExecuteAgainstRequestExecutor() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
 
-        Response result = request.execute(webProxy);
+        Response result = request.execute(webProxyMock);
 
-        verify(requestExecutor).execute(webProxy);
-        assertThat(result).isEqualTo(response);
+        verify(requestExecutorMock).execute(webProxyMock);
+        assertThat(result).isEqualTo(responseMock);
     }
 
     @Test
     public void shouldThrowExceptionWhenRequestHasAlreadyExecuted() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(mock(Response.class));
-        request.execute(webProxy);
+        WebProxy webProxyMock = mock(WebProxy.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(mock(Response.class));
+        request.execute(webProxyMock);
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("The test has already been executed");
 
-        request.execute(webProxy);
+        request.execute(webProxyMock);
     }
 
     @Test
     public void shouldThrowExceptionIfExecutorExecuteReturnsNull() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
+        WebProxy webProxyMock = mock(WebProxy.class);
         expectedException.expect(InvalidResponseException.class);
         expectedException.expectMessage("RequestExecutor execute returned null");
 
-        request.execute(webProxy);
+        request.execute(webProxyMock);
     }
 
     @Test
     public void shouldGetResponse() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
 
-        request.execute(webProxy);
+        request.execute(webProxyMock);
 
-        assertThat(request.getResponse()).isEqualTo(response);
+        assertThat(request.getResponse()).isEqualTo(responseMock);
     }
 
     @Test
@@ -203,18 +202,18 @@ public class RequestImplTests {
 
     @Test
     public void shouldVerifyConditionsInOrder() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
         ResponseCondition condition1 = mock(ResponseCondition.class);
         ResponseCondition condition2 = mock(ResponseCondition.class);
         request.expect(condition1).expect(condition2);
 
-        request.execute(webProxy);
+        request.execute(webProxyMock);
 
         InOrder inOrder = inOrder(condition1, condition2);
-        inOrder.verify(condition1).match(request, response);
-        inOrder.verify(condition2).match(request, response);
+        inOrder.verify(condition1).match(request, responseMock);
+        inOrder.verify(condition2).match(request, responseMock);
     }
 
     @Test
@@ -245,66 +244,90 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldInvokeResponseProcessorsInOrder() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
-        ResponseProcessor processor1 = mock(ResponseProcessor.class);
-        ResponseProcessor processor2 = mock(ResponseProcessor.class);
-        request.processWith(processor1)
-                .processWith(processor2);
+    public void shouldPrepareResponseProcessors() throws Exception {
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
+        ResponseProcessor responseProcessorMock1 = mock(ResponseProcessor.class);
+        ResponseProcessor responseProcessorMock2 = mock(ResponseProcessor.class);
+        request.processWith(responseProcessorMock1).processWith(responseProcessorMock2);
 
-        request.execute(webProxy);
+        request.execute(webProxyMock);
 
-        InOrder inOrder = inOrder(processor1, processor2);
-        inOrder.verify(processor1).process(request, response);
-        inOrder.verify(processor2).process(request, response);
+        InOrder inOrder = inOrder(responseProcessorMock1, responseProcessorMock2, requestExecutorMock);
+        inOrder.verify(responseProcessorMock1).prepare(request);
+        inOrder.verify(responseProcessorMock2).prepare(request);
+        inOrder.verify(requestExecutorMock).execute(webProxyMock);
     }
 
     @Test
-    public void shouldVerifyConditionsBeforeInvokingResponseProcessors() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
-        String conditionName = "RequestImplTest";
-        TestResponseCondition condition = new TestResponseCondition(conditionName, true);
-        request.expect(condition);
-        ResponseProcessor processor = mock(ResponseProcessor.class);
-        request.processWith(processor);
+    public void shouldVerifyResponseConditions() throws Exception {
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
+        ResponseCondition responseConditionMock1 = mock(ResponseCondition.class);
+        ResponseCondition responseConditionMock2 = mock(ResponseCondition.class);
+        request.expect(responseConditionMock1).expect(responseConditionMock2);
+        ResponseProcessor responseProcessorMock = mock(ResponseProcessor.class);
+        request.processWith(responseProcessorMock);
 
-        try {
-            request.execute(webProxy);
-        } catch (AssertionFailureException ex) {
-            assertThat(ex.getMessage()).isEqualTo(conditionName);
-        }
+        request.execute(webProxyMock);
 
-        verify(processor, never()).process(request, response);
+        InOrder inOrder = inOrder(requestExecutorMock, responseConditionMock1, responseConditionMock2);
+        inOrder.verify(requestExecutorMock).execute(webProxyMock);
+        verify(responseConditionMock1).match(request, responseMock);
+        verify(responseConditionMock2).match(request, responseMock);
+    }
+
+    @Test
+    public void shouldProcessResponseWithResponseProcessors() throws Exception {
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
+        ResponseCondition responseConditionMock = mock(ResponseCondition.class);
+        request.expect(responseConditionMock);
+        ResponseProcessor responseProcessorMock1 = mock(ResponseProcessor.class);
+        ResponseProcessor responseProcessorMock2 = mock(ResponseProcessor.class);
+        request.processWith(responseProcessorMock1).processWith(responseProcessorMock2);
+
+        request.execute(webProxyMock);
+
+        InOrder inOrder = inOrder(responseConditionMock, responseProcessorMock1, responseProcessorMock2);
+        inOrder.verify(responseConditionMock).match(request, responseMock);
+        inOrder.verify(responseProcessorMock1).process(request, responseMock);
+        inOrder.verify(responseProcessorMock2).process(request, responseMock);
+    }
+
+    @Test
+    public void shouldProcessResponseWithRequestExecutor() throws Exception {
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
+        ResponseProcessor responseProcessorMock = mock(ResponseProcessor.class);
+        request.processWith(responseProcessorMock);
+
+        request.execute(webProxyMock);
+
+        InOrder inOrder = inOrder(responseProcessorMock, requestExecutorMock);
+        inOrder.verify(responseProcessorMock).process(request, responseMock);
+        inOrder.verify(requestExecutorMock).process(request, responseMock);
     }
 
     private void executeRequest() throws Exception {
-        WebProxy webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(requestExecutor.execute(webProxy)).thenReturn(response);
-        request.execute(webProxy);
+        WebProxy webProxyMock = mock(WebProxy.class);
+        Response responseMock = mock(Response.class);
+        when(requestExecutorMock.execute(webProxyMock)).thenReturn(responseMock);
+        request.execute(webProxyMock);
     }
 
     private class TestResponseCondition implements ResponseCondition {
         private final String name;
-        private final boolean shouldThrow;
 
         public TestResponseCondition(String name) {
-            this(name, false);
-        }
-
-        public TestResponseCondition(String name, boolean shouldThrow) {
             this.name = name;
-            this.shouldThrow = shouldThrow;
         }
 
         public void match(Request request, Response response) throws Exception {
-            if (shouldThrow) {
-                throw new AssertionFailureException(name);
-            }
         }
     }
 }

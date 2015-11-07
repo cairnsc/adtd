@@ -15,6 +15,7 @@ public class FormRetrieveRequest implements RequestExecutor {
     private FormResponseProcessor formResponseProcessor;
     private CsrfFormTokenProcessor csrfFormTokenProcessor;
     private String csrfTokenInputName;
+    private Response response;
 
     public FormRetrieveRequest(String formAction) {
         this.formAction = formAction;
@@ -56,7 +57,6 @@ public class FormRetrieveRequest implements RequestExecutor {
         return htmlResponseProcessor.getDocument();
     }
 
-
     /**
      * Get form retrieved in the request.
      * @return Form.
@@ -69,6 +69,10 @@ public class FormRetrieveRequest implements RequestExecutor {
     public Response execute(WebProxy proxy) throws Exception {
         request.expectIfUnset(status().is(HttpStatus.OK));
         return proxy.execute(request);
+    }
+
+    public void process(Request request, Response response) throws Exception {
+//        this.response = response;
     }
 
     private void checkMutability() {

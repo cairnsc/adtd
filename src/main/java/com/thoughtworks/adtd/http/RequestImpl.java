@@ -4,14 +4,13 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 public class RequestImpl implements Request {
-    private RequestExecutor executor;
+    private RequestExecutor requestExecutor;
     private String method;
     private String uri;
     private final LinkedListMultimap<String, String> headers;
@@ -20,8 +19,8 @@ public class RequestImpl implements Request {
     private final List<ResponseProcessor> responseProcessors;
     private Response response;
 
-    public RequestImpl(RequestExecutor executor) {
-        this.executor = executor;
+    public RequestImpl(RequestExecutor requestExecutor) {
+        this.requestExecutor = requestExecutor;
         headers = LinkedListMultimap.create();
         params = LinkedListMultimap.create();
         responseExpectations = newArrayList();
@@ -102,8 +101,9 @@ public class RequestImpl implements Request {
 
     public Response execute(WebProxy proxy) throws Exception {
         checkMutability();
+        prepareResponseProcessors();
 
-        response = executor.execute(proxy);
+        response = requestExecutor.execute(proxy);
         if (response == null) {
             throw new InvalidResponseException("RequestExecutor execute returned null");
         }
@@ -114,10 +114,17 @@ public class RequestImpl implements Request {
         return response;
     }
 
+    private void prepareResponseProcessors() {
+        for (ResponseProcessor processor : responseProcessors) {
+            processor.prepare(this);
+        }
+    }
+
     private void processResponse() throws Exception {
         for (ResponseProcessor processor : responseProcessors) {
             processor.process(this, response);
         }
+        requestExecutor.process(this, response);
     }
 
     public Response getResponse() {

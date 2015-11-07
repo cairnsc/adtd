@@ -7,15 +7,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class TestStrategyPositiveTests {
-
     @Test
     public void shouldNotMutateFormData() {
-        TestStrategyPositive strategy = new TestStrategyPositive();
+        TestStrategyPositive strategy = new TestStrategyPositive("token");
         FormData formData = mock(FormData.class);
 
         strategy.mutateFormData(formData);
 
         verifyZeroInteractions(formData);
     }
-
 }

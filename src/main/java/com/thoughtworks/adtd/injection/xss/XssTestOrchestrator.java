@@ -2,16 +2,16 @@ package com.thoughtworks.adtd.injection.xss;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
+import com.thoughtworks.adtd.injection.xss.strategies.TestStrategyBasic;
 
 import java.util.Iterator;
 
-public class XssTestIteratorImpl implements XssTestIterator {
-
+public class XssTestOrchestrator implements Iterator<XssTest> {
     public static Iterable<Object[]> asIterableOfArrays() {
         return FluentIterable
                 .from(new Iterable<XssTest>() {
                     public Iterator<XssTest> iterator() {
-                        return new XssTestIteratorImpl();
+                        return new XssTestOrchestrator();
                     }
                 })
                 .transform(new Function<XssTest, Object[]>() {
@@ -31,7 +31,7 @@ public class XssTestIteratorImpl implements XssTestIterator {
 
     private int currentIdx;
 
-    public XssTestIteratorImpl() {
+    public XssTestOrchestrator() {
         currentIdx = 0;
     }
 
@@ -40,7 +40,8 @@ public class XssTestIteratorImpl implements XssTestIterator {
     }
 
     public XssTest next() {
-        XssTestImpl xssTest = new XssTestImpl(ATTACK_LIST[currentIdx]);
+        XssPattern xssPattern = new XssPattern(ATTACK_LIST[currentIdx]);
+        XssTest xssTest = new XssTest(new TestStrategyBasic(xssPattern));
         currentIdx++;
         return xssTest;
     }
@@ -52,5 +53,4 @@ public class XssTestIteratorImpl implements XssTestIterator {
     public int count() {
         return ATTACK_LIST.length;
     }
-
 }

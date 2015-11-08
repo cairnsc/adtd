@@ -7,15 +7,14 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XssTestIteratorImplTests {
-
+public class XssTestOrchestratorTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private XssTestIteratorImpl iterator;
+    private XssTestOrchestrator iterator;
 
     @Before
     public void setUp() {
-        iterator = new XssTestIteratorImpl();
+        iterator = new XssTestOrchestrator();
     }
 
     @Test
@@ -37,5 +36,4 @@ public class XssTestIteratorImplTests {
 
         assertThat(iterator.hasNext()).isFalse();
     }
-
 }

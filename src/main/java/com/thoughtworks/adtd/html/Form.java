@@ -19,5 +19,5 @@ public interface Form {
     String getAction() throws Exception;
     List<FormFieldData> getFormFields();
 
-    Request createRequest(RequestExecutor executor) throws Exception;
+    Request createRequest(RequestExecutor requestExecutor) throws Exception;
 }

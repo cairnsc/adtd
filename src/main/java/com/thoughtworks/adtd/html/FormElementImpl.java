@@ -89,10 +89,10 @@ public class FormElementImpl implements Form {
         return formInputs;
     }
 
-    public Request createRequest(RequestExecutor executor) throws Exception {
+    public Request createRequest(RequestExecutor requestExecutor) throws Exception {
         String action = getAction();
         String method = getMethod();
-        return new RequestImpl(executor)
+        return new RequestImpl(requestExecutor)
                 .method(method)
                 .uri(action);
     }

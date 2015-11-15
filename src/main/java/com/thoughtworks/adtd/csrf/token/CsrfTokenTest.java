@@ -28,7 +28,7 @@ public class CsrfTokenTest implements RequestExecutor {
     }
 
     /**
-     * Prepare a request to submit the form with the CSRF token from the retrieve request included.
+     * Prepare a request to perform the test.
      * @return Request.
      * @throws Exception
      */

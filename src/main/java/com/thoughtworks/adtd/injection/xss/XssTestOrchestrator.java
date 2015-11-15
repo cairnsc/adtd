@@ -41,9 +41,9 @@ public class XssTestOrchestrator implements Iterator<XssTest> {
 
     public XssTest next() {
         XssPattern xssPattern = new XssPattern(ATTACK_LIST[currentIdx]);
-        XssTest xssTest = new XssTest(new TestStrategyBasic(xssPattern));
+        XssTest test = new XssTest(new TestStrategyBasic(xssPattern));
         currentIdx++;
-        return xssTest;
+        return test;
     }
 
     public void remove() {

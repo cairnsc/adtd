@@ -8,13 +8,13 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FormDataTests {
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -27,16 +27,17 @@ public class FormDataTests {
 
     @Test
     public void shouldPopulateFormDataImplWithFormInputs() {
-        Form form = mock(Form.class);
-        ArrayList<FormFieldData> fieldsInForm = new ArrayList<FormFieldData>();
+        Form formMock = mock(Form.class);
+        ArrayList<FormFieldData> fieldsInForm = newArrayList();
         fieldsInForm.add(new FormFieldData(null, "a", "b"));
         fieldsInForm.add(new FormFieldData(null, "c", "d"));
-        when(form.getFormFields()).thenReturn(fieldsInForm);
+        when(formMock.getFormFields()).thenReturn(fieldsInForm);
 
-        FormData formData = new FormData(form);
+        FormData formData = new FormData(formMock);
 
         List<FormFieldData> formDataFields = formData.getFormFields();
         assertThat(formDataFields.size()).isEqualTo(2);
+        assertThat(formDataFields.size()).isEqualTo(formData.countFormFields());
         FormFieldData formFieldData = formDataFields.get(0);
         assertThat(formFieldData.getName()).isEqualTo("a");
         assertThat(formFieldData.getValue()).isEqualTo("b");
@@ -64,6 +65,7 @@ public class FormDataTests {
 
         List<FormFieldData> formDataFields = formData.getFormFields();
         assertThat(formDataFields.size()).isEqualTo(1);
+        assertThat(formDataFields.size()).isEqualTo(formData.countFormFields());
         FormFieldData formFieldData = formDataFields.get(0);
         assertThat(formFieldData.getName()).isEqualTo(name);
         assertThat(formFieldData.getValue()).isEqualTo(value);
@@ -91,6 +93,7 @@ public class FormDataTests {
 
         FormFieldData formFieldData = formData.getFormField(name);
         assertThat(formFieldData.getValue()).isEqualTo(value);
+        assertThat(formFieldData).isSameAs(formData.getFormField(1));
     }
 
     @Test
@@ -104,27 +107,49 @@ public class FormDataTests {
     }
 
     @Test
-    public void shouldSetFormField() {
+    public void shouldSetFormFieldByName() {
         FormData formData = new FormData();
         String name = "a";
         formData.addFormField(name, "b");
 
-        String value = "new value";
-        formData.setFormField(name, value);
+        String newValue = "new value";
+        formData.setFormField(name, newValue);
 
         FormFieldData formFieldData = formData.getFormField(name);
-        assertThat(formFieldData.getValue()).isEqualTo(value);
+        assertThat(formFieldData.getValue()).isEqualTo(newValue);
     }
 
     @Test
-    public void shouldThrowExceptionWhenImmutableInSetFormField() {
+    public void shouldSetFormFieldByIndex() {
         FormData formData = new FormData();
-        formData.setFormField("a", "b");
+        String name = "a";
+        formData.addFormField(name, "b");
+
+        String newValue = "new value";
+        formData.setFormField(0, newValue);
+
+        FormFieldData formFieldData = formData.getFormField(name);
+        assertThat(formFieldData.getValue()).isEqualTo(newValue);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenImmutableInSetFormFieldByName() {
+        FormData formData = new FormData();
         formData.setImmutable();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("Form is immutable");
 
         formData.setFormField("a", "new value");
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenImmutableInSetFormFieldByIndex() {
+        FormData formData = new FormData();
+        formData.setImmutable();
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("Form is immutable");
+
+        formData.setFormField(0, "new value");
     }
 
     @Test
@@ -138,6 +163,7 @@ public class FormDataTests {
 
         List<FormFieldData> formDataFields = formData.getFormFields();
         assertThat(formDataFields.size()).isEqualTo(2);
+        assertThat(formDataFields.size()).isEqualTo(formData.countFormFields());
         FormFieldData formFieldData = formData.getFormField(name);
         assertThat(formFieldData.getValue()).isEqualTo(value);
     }
@@ -157,12 +183,11 @@ public class FormDataTests {
         FormData formData = new FormData();
         formData.setFormField("a", "b");
         formData.setFormField("c", "d");
-        Request request = mock(Request.class);
+        Request requestMock = mock(Request.class);
 
-        formData.setRequestParams(request);
+        formData.setRequestParams(requestMock);
 
-        verify(request).param("a", "b");
-        verify(request).param("c", "d");
+        verify(requestMock).param("a", "b");
+        verify(requestMock).param("c", "d");
     }
-
 }

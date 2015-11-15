@@ -7,6 +7,7 @@ import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import com.thoughtworks.adtd.testutil.BasicHtml;
 import com.thoughtworks.adtd.testutil.BasicHtmlForm;
+import com.thoughtworks.adtd.testutil.TestResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,11 +21,11 @@ import static org.mockito.Mockito.*;
 public class CsrfTokenTestTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private WebProxy webProxy;
-    private TestStrategy testStrategy;
-    private Form form;
-    private FormData formData;
-    private ResponseValidator responseValidator;
+    private WebProxy webProxyMock;
+    private TestStrategy testStrategyMock;
+    private Form formMock;
+    private FormData formDataMock;
+    private ResponseValidator responseValidatorMock;
     private CsrfTokenTest test;
     private Request request;
     private Response response;
@@ -45,11 +46,11 @@ public class CsrfTokenTestTests {
 
         test.prepare();
 
-        InOrder inOrder = inOrder(form, testStrategy, formData);
-        inOrder.verify(form).createRequest(test);
-        inOrder.verify(testStrategy).mutateFormData(formData);
-        inOrder.verify(formData).setImmutable();
-        inOrder.verify(formData).setRequestParams(request);
+        InOrder inOrder = inOrder(formMock, testStrategyMock, formDataMock);
+        inOrder.verify(formMock).createRequest(test);
+        inOrder.verify(testStrategyMock).mutateFormData(formDataMock);
+        inOrder.verify(formDataMock).setImmutable();
+        inOrder.verify(formDataMock).setRequestParams(request);
     }
 
     @Test
@@ -59,7 +60,7 @@ public class CsrfTokenTestTests {
         Response result = prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
 
         assertThat(result).isEqualTo(response);
-        verify(webProxy).execute(request);
+        verify(webProxyMock).execute(request);
     }
 
     @Test
@@ -99,17 +100,17 @@ public class CsrfTokenTestTests {
 
         test.assertResponse();
 
-        verify(responseValidator).validate(request, response);
+        verify(responseValidatorMock).validate(request, response);
     }
 
     private void createTest(String tokenInputName) throws Exception {
-        testStrategy = mock(TestStrategy.class);
-        form = mock(Form.class);
-        formData = mock(FormData.class);
-        responseValidator = mock(ResponseValidator.class);
-        test = new CsrfTokenTest(testStrategy, form, formData, responseValidator);
+        testStrategyMock = mock(TestStrategy.class);
+        formMock = mock(Form.class);
+        formDataMock = mock(FormData.class);
+        responseValidatorMock = mock(ResponseValidator.class);
+        test = new CsrfTokenTest(testStrategyMock, formMock, formDataMock, responseValidatorMock);
         request = createRequest();
-        when(form.createRequest(test)).thenReturn(request);
+        when(formMock.createRequest(test)).thenReturn(request);
     }
 
     private Request createRequest() throws Exception {
@@ -120,17 +121,15 @@ public class CsrfTokenTestTests {
 
     private Response prepareAndExecuteRequest(int statusCode, String body) throws Exception {
         Request preparedRequest = test.prepare();
-        assertThat(preparedRequest).isEqualTo(request);
-        response = createMockedResponse(preparedRequest, statusCode, body);
-        return request.execute(webProxy);
+        assertThat(preparedRequest).isSameAs(request);
+        response = createResponse(statusCode, body);
+        return request.execute(webProxyMock);
     }
 
-    private Response createMockedResponse(Request request, int statusCode, String body) throws Exception {
-        webProxy = mock(WebProxy.class);
-        Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(statusCode);
-        when(response.getBody()).thenReturn(body);
-        when(webProxy.execute(request)).thenReturn(response);
+    private Response createResponse(int statusCode, String body) throws Exception {
+        webProxyMock = mock(WebProxy.class);
+        Response response = new TestResponse(statusCode, body);
+        when(webProxyMock.execute(request)).thenReturn(response);
         return response;
     }
 }

@@ -9,13 +9,12 @@ import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
 public class FormElementImpl implements Form {
-
     private final FormElement formElement;
     private String method;
     private URI action;
@@ -81,8 +80,12 @@ public class FormElementImpl implements Form {
         return action.toString();
     }
 
+    public int countFormFields() {
+        return formElement.formData().size();
+    }
+
     public List<FormFieldData> getFormFields() {
-        List<FormFieldData> formInputs = new ArrayList<FormFieldData>();
+        List<FormFieldData> formInputs = newArrayList();
         for (Connection.KeyVal keyVal : formElement.formData()) {
             formInputs.add(new FormFieldData(null, keyVal.key(), keyVal.value()));
         }
@@ -96,6 +99,5 @@ public class FormElementImpl implements Form {
                 .method(method)
                 .uri(action);
     }
-
 }
 

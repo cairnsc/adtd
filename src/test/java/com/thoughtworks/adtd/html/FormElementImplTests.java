@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class FormElementImplTests {
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -152,6 +151,7 @@ public class FormElementImplTests {
         List<FormFieldData> formInputs = form.getFormFields();
 
         assertThat(formInputs.size()).isEqualTo(2);
+        assertThat(formInputs.size()).isEqualTo(form.countFormFields());
         FormFieldData formFieldData = formInputs.get(0);
         assertThat(formFieldData.getName()).isEqualTo("a");
         assertThat(formFieldData.getValue()).isEqualTo("b");
@@ -176,5 +176,4 @@ public class FormElementImplTests {
         assertThat(request.getMethod()).isEqualTo(method);
         assertThat(request.getUri()).isEqualTo(action);
     }
-
 }

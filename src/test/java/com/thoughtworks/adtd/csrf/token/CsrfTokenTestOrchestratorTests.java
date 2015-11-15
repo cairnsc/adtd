@@ -36,11 +36,13 @@ public class CsrfTokenTestOrchestratorTests {
         int count = iterator.count();
         assertThat(count).isGreaterThan(0);
 
-        for (int idx = 0; idx < count; idx++) {
+        int idx;
+        for (idx = 0; idx < count; idx++) {
             CsrfTokenTest next = iterator.next();
             assertThat(next).isNotNull();
         }
 
+        assertThat(idx).isEqualTo(count);
         assertThat(iterator.hasNext()).isFalse();
     }
 }

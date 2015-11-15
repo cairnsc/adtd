@@ -3,6 +3,7 @@ package com.thoughtworks.adtd.html;
 import com.thoughtworks.adtd.http.Request;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,8 +25,19 @@ public class FormData {
         }
     }
 
+    public FormData(FormData formData) {
+        this();
+        for (FormFieldData formFieldData : formFields) {
+            formFields.add(new FormFieldData(this, formFieldData.getName(), formFieldData.getValue()));
+        }
+    }
+
     public List<FormFieldData> getFormFields() {
-        return formFields;
+        return Collections.unmodifiableList(formFields);
+    }
+
+    public int countFormFields() {
+        return formFields.size();
     }
 
     public boolean isMutable() {
@@ -36,6 +48,10 @@ public class FormData {
         isMutable = false;
     }
 
+    public FormFieldData getFormField(int index) {
+        return formFields.get(index);
+    }
+
     public FormFieldData getFormField(String name) {
         for (FormFieldData formFieldData : formFields) {
             if (formFieldData.getName().equals(name)) {
@@ -43,6 +59,12 @@ public class FormData {
             }
         }
         return null;
+    }
+
+    public void setFormField(int index, String value) {
+        checkMutability();
+        FormFieldData formFieldData = formFields.get(index);
+        formFieldData.setValue(value);
     }
 
     public void setFormField(String name, String value) {

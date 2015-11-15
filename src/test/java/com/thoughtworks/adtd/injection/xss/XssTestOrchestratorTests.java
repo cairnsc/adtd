@@ -10,30 +10,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class XssTestOrchestratorTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private XssTestOrchestrator iterator;
+    private XssTestOrchestrator orchestrator;
 
     @Before
     public void setUp() {
-        iterator = new XssTestOrchestrator();
+        orchestrator = new XssTestOrchestrator();
     }
 
     @Test
     public void shouldThrowExceptionOnRemove() {
         expectedException.expect(UnsupportedOperationException.class);
 
-        iterator.remove();
+        orchestrator.remove();
     }
 
     @Test
     public void shouldExhaustIterator() {
-        int count = iterator.count();
+        int count = orchestrator.count();
         assertThat(count).isGreaterThan(0);
 
-        for (int idx = 0; idx < count; idx++) {
-            XssTest next = iterator.next();
+        int idx;
+        for (idx = 0; idx < count; idx++) {
+            XssTest next = orchestrator.next();
             assertThat(next).isNotNull();
         }
 
-        assertThat(iterator.hasNext()).isFalse();
+        assertThat(idx).isEqualTo(count);
+        assertThat(orchestrator.hasNext()).isFalse();
     }
 }

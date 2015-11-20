@@ -2,14 +2,14 @@ package com.thoughtworks.adtd.injection.xss.strategies;
 
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.RequestExecutor;
-import com.thoughtworks.adtd.injection.xss.XssPattern;
+import com.thoughtworks.adtd.injection.xss.XssPayload;
 
 public interface TestStrategy {
     /**
-     * Get the pattern being used in the strategy.
-     * @return XSS pattern.
+     * Get the XSS payload being used in the strategy.
+     * @return Payload.
      */
-    XssPattern getXssPattern();
+    XssPayload getPayload();
 
     /**
      * Create a request.

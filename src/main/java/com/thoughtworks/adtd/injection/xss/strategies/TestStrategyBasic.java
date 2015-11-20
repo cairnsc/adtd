@@ -3,17 +3,17 @@ package com.thoughtworks.adtd.injection.xss.strategies;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.http.RequestImpl;
-import com.thoughtworks.adtd.injection.xss.XssPattern;
+import com.thoughtworks.adtd.injection.xss.XssPayload;
 
 public class TestStrategyBasic implements TestStrategy {
-    private final XssPattern xssPattern;
+    private final XssPayload xssPayload;
 
-    public TestStrategyBasic(XssPattern xssPattern) {
-        this.xssPattern = xssPattern;
+    public TestStrategyBasic(XssPayload xssPayload) {
+        this.xssPayload = xssPayload;
     }
 
-    public XssPattern getXssPattern() {
-        return xssPattern;
+    public XssPayload getPayload() {
+        return xssPayload;
     }
 
     public Request createRequest(RequestExecutor requestExecutor) throws Exception {
@@ -21,6 +21,6 @@ public class TestStrategyBasic implements TestStrategy {
     }
 
     public boolean matches(String content) {
-        return xssPattern.matches(content);
+        return xssPayload.matches(content);
     }
 }

@@ -4,14 +4,14 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XssPatternTest {
+public class XssPayloadTest {
     @Test
     public void shouldMatchPattern() {
         String testPattern = "<script>adtd();</script>";
-        XssPattern xssPattern = new XssPattern(testPattern);
+        XssPayload xssPayload = new XssPayload(testPattern);
         String content = "<html><body>" + testPattern + "</body></html>";
 
-        boolean matches = xssPattern.matches(content);
+        boolean matches = xssPayload.matches(content);
 
         assertThat(matches).isTrue();
     }
@@ -19,10 +19,10 @@ public class XssPatternTest {
     @Test
     public void shouldMatchPatternCaseInsensitive() {
         String testPattern = "<script>adtd();</script>";
-        XssPattern xssPattern = new XssPattern(testPattern);
+        XssPayload xssPayload = new XssPayload(testPattern);
         String content = "<html><body>" + testPattern.toUpperCase() + "</body></html>";
 
-        boolean matches = xssPattern.matches(content);
+        boolean matches = xssPayload.matches(content);
 
         assertThat(matches).isTrue();
     }

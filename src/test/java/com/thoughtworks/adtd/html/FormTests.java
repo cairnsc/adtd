@@ -1,7 +1,5 @@
 package com.thoughtworks.adtd.html;
 
-import com.thoughtworks.adtd.http.Request;
-import com.thoughtworks.adtd.http.RequestExecutor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -18,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class FormElementImplTests {
+public class FormTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -30,7 +28,7 @@ public class FormElementImplTests {
         expectedException.expect(ElementCountException.class);
         expectedException.expectMessage("Expected 1 form elements with action=\"" + formAction + "\", found 0");
 
-        FormElementImpl.getFormFromDocument(doc, formAction);
+        Form.getFormFromDocument(doc, formAction);
     }
 
     @Test
@@ -42,13 +40,13 @@ public class FormElementImplTests {
         expectedException.expect(ElementCountException.class);
         expectedException.expectMessage("Expected 1 form elements with action=\"" + formAction + "\", found 2");
 
-        FormElementImpl.getFormFromDocument(doc, formAction);
+        Form.getFormFromDocument(doc, formAction);
     }
 
     @Test
     public void shouldSelectInForm() {
         FormElement formElement = mock(FormElement.class);
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
 
         String cssQuery = "input";
         form.select(cssQuery);
@@ -62,7 +60,7 @@ public class FormElementImplTests {
         String elementName = "input";
         formElement.append("<input></input>");
         formElement.append("<input></input>");
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
         expectedException.expect(ElementCountException.class);
         expectedException.expectMessage("Expected 1 elements matching \"" + elementSelector(elementName) + "\", found 2");
 
@@ -75,7 +73,7 @@ public class FormElementImplTests {
         Attributes attributes = new Attributes();
         attributes.put("method", method);
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
 
         String formMethod = form.getMethod();
 
@@ -84,10 +82,8 @@ public class FormElementImplTests {
 
     @Test
     public void shouldMakeMethodUppercase() throws Exception {
-        Attributes attributes = new Attributes();
-        attributes.put("method", "get");
-        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
+        FormElement formElement = createBasicFormElement("get");
+        Form form = new Form(formElement);
 
         String formMethod = form.getMethod();
 
@@ -96,10 +92,8 @@ public class FormElementImplTests {
 
     @Test
     public void shouldStripMethodWhitespace() throws Exception {
-        Attributes attributes = new Attributes();
-        attributes.put("method", "  post ");
-        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
+        FormElement formElement = createBasicFormElement("  post ");
+        Form form = new Form(formElement);
 
         String formMethod = form.getMethod();
 
@@ -111,7 +105,7 @@ public class FormElementImplTests {
         Attributes attributes = new Attributes();
         attributes.put("method", "put");
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
         expectedException.expect(ElementAttributeException.class);
         expectedException.expectMessage("Element form with method=\"put\" is not a valid method");
 
@@ -124,7 +118,7 @@ public class FormElementImplTests {
         Attributes attributes = new Attributes();
         attributes.put("action", action);
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
 
         String formAction = form.getAction();
 
@@ -134,7 +128,7 @@ public class FormElementImplTests {
     @Test
     public void shouldThrowExceptionIfActionIsNotSpecified() throws Exception {
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
         expectedException.expect(ElementAttributeRequiredException.class);
         expectedException.expectMessage("Element form is missing required attribute \"action\"");
 
@@ -142,38 +136,25 @@ public class FormElementImplTests {
     }
 
     @Test
-    public void shouldGetFormDataFromFormElement() {
+    public void shouldGetFormInputsFromFormElement() {
         FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
         formElement.append("<input name=\"a\" value=\"b\"></input>");
         formElement.append("<input name=\"c\" value=\"d\"></input>");
-        FormElementImpl form = new FormElementImpl(formElement);
+        Form form = new Form(formElement);
 
-        List<FormFieldData> formInputs = form.getFormFields();
+        List<FormField> formInputs = form.getFormFields();
 
         assertThat(formInputs.size()).isEqualTo(2);
         assertThat(formInputs.size()).isEqualTo(form.countFormFields());
-        FormFieldData formFieldData = formInputs.get(0);
-        assertThat(formFieldData.getName()).isEqualTo("a");
-        assertThat(formFieldData.getValue()).isEqualTo("b");
-        formFieldData = formInputs.get(1);
-        assertThat(formFieldData.getName()).isEqualTo("c");
-        assertThat(formFieldData.getValue()).isEqualTo("d");
+        assertThat(formInputs.get(0).getName()).isEqualTo("a");
+        assertThat(formInputs.get(0).getValue()).isEqualTo("b");
+        assertThat(formInputs.get(1).getName()).isEqualTo("c");
+        assertThat(formInputs.get(1).getValue()).isEqualTo("d");
     }
 
-    @Test
-    public void shouldCreateRequest() throws Exception {
-        String method = "POST";
-        String action = "/action";
+    private FormElement createBasicFormElement(String method) {
         Attributes attributes = new Attributes();
         attributes.put("method", method);
-        attributes.put("action", action);
-        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", attributes);
-        FormElementImpl form = new FormElementImpl(formElement);
-        RequestExecutor requestExecutor = mock(RequestExecutor.class);
-
-        Request request = form.createRequest(requestExecutor);
-
-        assertThat(request.getMethod()).isEqualTo(method);
-        assertThat(request.getUri()).isEqualTo(action);
+        return new FormElement(Tag.valueOf("form"), "/", attributes);
     }
 }

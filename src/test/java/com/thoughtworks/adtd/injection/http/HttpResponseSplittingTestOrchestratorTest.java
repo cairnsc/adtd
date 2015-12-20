@@ -1,7 +1,7 @@
 package com.thoughtworks.adtd.injection.http;
 
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.injection.xss.XssTest;
+import com.thoughtworks.adtd.http.RequestInfo;
+import com.thoughtworks.adtd.http.RequestParameters;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,13 +14,16 @@ import static org.mockito.Mockito.when;
 public class HttpResponseSplittingTestOrchestratorTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private Form form;
+    private RequestInfo requestInfoMock;
     public HttpResponseSplittingTestOrchestrator orchestrator;
+    private RequestParameters requestParametersMock;
 
     @Before
     public void setUp() {
-        form = mock(Form.class);
-        orchestrator = new HttpResponseSplittingTestOrchestrator(form);
+        requestInfoMock = mock(RequestInfo.class);
+        requestParametersMock = mock(RequestParameters.class);
+        when(requestInfoMock.getRequestParameters()).thenReturn(requestParametersMock);
+        orchestrator = new HttpResponseSplittingTestOrchestrator(requestInfoMock);
     }
 
     @Test
@@ -32,20 +35,20 @@ public class HttpResponseSplittingTestOrchestratorTest {
 
     @Test
     public void shouldGetCountFromForm() {
-        int formFieldCount = 123;
-        when(form.countFormFields()).thenReturn(formFieldCount);
+        int requestParametersCount = 123;
+        when(requestParametersMock.size()).thenReturn(requestParametersCount);
 
         int count = orchestrator.count();
 
-        assertThat(count).isEqualTo(formFieldCount);
+        assertThat(count).isEqualTo(requestParametersCount);
     }
 
     @Test
     public void shouldExhaustIterator() {
-        int formFieldCount = 1;
-        when(form.countFormFields()).thenReturn(formFieldCount);
+        int requestParametersCount = 2;
+        when(requestParametersMock.size()).thenReturn(requestParametersCount);
         int count = orchestrator.count();
-        assertThat(count).isEqualTo(formFieldCount);
+        assertThat(count).isEqualTo(requestParametersCount);
 
         int idx;
         for (idx = 0; idx < count; idx++) {

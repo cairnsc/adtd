@@ -25,6 +25,10 @@ public class XssTest implements RequestExecutor {
         return testStrategy;
     }
 
+    public XssPayload getXssPayload() {
+        return testStrategy.getXssPayload();
+    }
+
     /**
      * Prepare a request to perform the test.
      * @return Request.

@@ -1,11 +1,6 @@
 package com.thoughtworks.adtd.injection.http;
 
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
-import com.thoughtworks.adtd.http.Request;
-import com.thoughtworks.adtd.http.RequestExecutor;
-import com.thoughtworks.adtd.http.Response;
-import com.thoughtworks.adtd.http.WebProxy;
+import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 
 /**
@@ -16,16 +11,14 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 public class HttpResponseSplittingTest implements RequestExecutor {
     public static final String TEST_HEADER = "Bork";
     public static final String TEST_STRING = "test%0d%0a" + TEST_HEADER + ":%20bork";
-    private final Form form;
-    private final FormData formData;
-    private final int fieldIdx;
+    private final int paramIndex;
+    private final RequestInfo requestInfo;
     private Request request;
     private Response response;
 
-    public HttpResponseSplittingTest(Form form, FormData formData, int fieldIdx) {
-        this.form = form;
-        this.formData = formData;
-        this.fieldIdx = fieldIdx;
+    public HttpResponseSplittingTest(RequestInfo requestInfo, int paramIndex) {
+        this.requestInfo = requestInfo;
+        this.paramIndex = paramIndex;
     }
 
     /**
@@ -38,10 +31,8 @@ public class HttpResponseSplittingTest implements RequestExecutor {
             throw new IllegalStateException("A request has already been prepared for this test");
         }
 
-        request = form.createRequest(this);
-        formData.setFormField(fieldIdx, TEST_STRING);
-        formData.setImmutable();
-        formData.setRequestParams(request);
+        request = requestInfo.createRequest(this);
+        request.getParams().setParam(paramIndex, TEST_STRING);
         return request;
     }
 

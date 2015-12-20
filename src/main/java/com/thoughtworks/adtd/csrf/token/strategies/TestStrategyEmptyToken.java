@@ -1,20 +1,21 @@
 package com.thoughtworks.adtd.csrf.token.strategies;
 
-import com.thoughtworks.adtd.html.FormData;
+import com.thoughtworks.adtd.http.Request;
+import com.thoughtworks.adtd.http.RequestParameters;
 
 public class TestStrategyEmptyToken implements TestStrategy {
-    private final String tokenInputName;
+    private final int paramIndex;
 
-    public TestStrategyEmptyToken(String tokenInputName) {
-        this.tokenInputName = tokenInputName;
+    public TestStrategyEmptyToken(int paramIndex) {
+        this.paramIndex = paramIndex;
     }
 
-    public String getTokenInputName() {
-        return tokenInputName;
+    public int getParamIndex() {
+        return paramIndex;
     }
 
-    public void mutateFormData(FormData formData) {
-        formData.setFormField(tokenInputName, "");
+    public void mutateRequest(Request request) {
+        RequestParameters requestParams = request.getParams();
+        requestParams.setParam(paramIndex, "");
     }
-
 }

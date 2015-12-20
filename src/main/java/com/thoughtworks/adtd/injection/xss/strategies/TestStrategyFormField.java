@@ -1,45 +1,32 @@
 package com.thoughtworks.adtd.injection.xss.strategies;
 
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.Request;
+import com.thoughtworks.adtd.http.RequestInfo;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.injection.xss.XssPayload;
 
 public class TestStrategyFormField implements TestStrategy {
-    private final Form form;
-    private final FormData formData;
-    private final int formFieldIdx;
+    private final RequestInfo requestInfo;
+    private final int paramIndex;
     private final XssPayload xssPayload;
 
-    public TestStrategyFormField(Form form, FormData formData, int formFieldIdx, XssPayload payload) {
-        this.form = form;
-        this.formData = formData;
-        this.formFieldIdx = formFieldIdx;
+    public TestStrategyFormField(RequestInfo requestInfo, int paramIndex, XssPayload payload) {
+        this.requestInfo = requestInfo;
+        this.paramIndex = paramIndex;
         this.xssPayload = payload;
     }
 
-    public Form getForm() {
-        return form;
+    public int getParamIndex() {
+        return paramIndex;
     }
 
-    public FormData getFormData() {
-        return formData;
-    }
-
-    public int getFormFieldIdx() {
-        return formFieldIdx;
-    }
-
-    public XssPayload getPayload() {
+    public XssPayload getXssPayload() {
         return xssPayload;
     }
 
     public Request createRequest(RequestExecutor requestExecutor) throws Exception {
-        Request request = form.createRequest(requestExecutor);
-        formData.setFormField(formFieldIdx, xssPayload.getPayload());
-        formData.setRequestParams(request);
-        formData.setImmutable();
+        Request request = requestInfo.createRequest(requestExecutor);
+        request.getParams().setParam(paramIndex, xssPayload.getPayload());
         return request;
     }
 

@@ -1,7 +1,6 @@
 package com.thoughtworks.adtd.html.responseProcessors;
 
 import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormElementImpl;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;
 import com.thoughtworks.adtd.http.ResponseProcessor;
@@ -43,7 +42,7 @@ public class FormResponseProcessor implements ResponseProcessor {
     public void process(Request request, Response response) throws Exception {
         this.response = response;
         Document document = htmlResponseProcessor.getDocument();
-        form = FormElementImpl.getFormFromDocument(document, formAction);
+        form = Form.getFormFromDocument(document, formAction);
     }
 
     private boolean responseProcessed() {

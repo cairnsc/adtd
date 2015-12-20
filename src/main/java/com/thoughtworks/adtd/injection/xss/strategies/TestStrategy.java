@@ -9,7 +9,7 @@ public interface TestStrategy {
      * Get the XSS payload being used in the strategy.
      * @return Payload.
      */
-    XssPayload getPayload();
+    XssPayload getXssPayload();
 
     /**
      * Create a request.

@@ -1,13 +1,11 @@
 package com.thoughtworks.adtd.http;
 
-import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,8 +47,8 @@ public class RequestImplTests {
         String uri = "http://adtd/test";
 
         Request retVal = request.uri(uri);
-        assertThat(retVal).isEqualTo(request);
 
+        assertThat(retVal).isEqualTo(request);
         assertThat(request.getUri()).isEqualTo(uri);
     }
 
@@ -64,20 +62,22 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldSetHeader() {
+    public void shouldAddHeader() {
         String headerName = "Host";
         String headerValue = "1";
 
         Request retVal = request.header(headerName, headerValue);
 
         assertThat(retVal).isEqualTo(request);
-        Multimap<String, String> headers = request.getHeaders();
-        Collection<String> headers1 = headers.get(headerName);
-        assertThat(headers1).containsExactly(headerValue);
+        List<Header> headers = request.getHeader(headerName);
+        assertThat(headers).hasSize(1);
+        Header header = headers.get(0);
+        assertThat(header.getName()).isEqualTo(headerName);
+        assertThat(header.getValue()).isEqualTo(headerValue);
     }
 
     @Test
-    public void shouldSetMultipleHeaders() {
+    public void shouldAddMultipleHeaders() {
         String headerNames[] = { "Accept", "Host" };
         String headerValues1[] = { "1", "2" };
         String headerValue2 = "3";
@@ -86,11 +86,11 @@ public class RequestImplTests {
                 .header(headerNames[0], headerValues1[1])
                 .header(headerNames[1], headerValue2);
 
-        Multimap<String, String> headers = request.getHeaders();
-        Collection<String> headers1 = headers.get(headerNames[0]);
-        assertThat(headers1).containsExactly(headerValues1);
-        Collection<String> headers2 = headers.get(headerNames[1]);
-        assertThat(headers2).containsExactly(headerValue2);
+        assertThat(request.getHeader(headerNames[0])).containsExactly(
+                new Header(headerNames[0], headerValues1[0]),
+                new Header(headerNames[0], headerValues1[1])
+        );
+        assertThat(request.getHeader(headerNames[1])).containsExactly(new Header(headerNames[1], headerValue2));
     }
 
     @Test
@@ -103,43 +103,53 @@ public class RequestImplTests {
     }
 
     @Test
-    public void shouldSetParam() {
-        String paramName = "A";
-        String paramValue = "B";
+    public void shouldSetHeaderAtIndex() {
+        String headerName = "1";
+        String headerValue = "2";
+        request.header(headerName, headerValue)
+                .header(headerName,  "3");
 
-        Request retVal = request.param(paramName, paramValue);
+        String replacementValue = "4";
+        request.setHeader(1, replacementValue);
 
-        assertThat(retVal).isEqualTo(request);
-        Multimap<String, String> params = request.getParams();
-        Collection<String> params1 = params.get(paramName);
-        assertThat(params1).containsExactly(paramValue);
+        List<Header> headers = request.getHeader(headerName);
+        assertThat(headers).hasSize(2);
+        assertThat(headers.get(0).getValue()).isEqualTo(headerValue);
+        assertThat(headers.get(1).getValue()).isEqualTo(replacementValue);
     }
 
     @Test
-    public void shouldSetMultipleParams() {
-        String paramNames[] = { "A", "B" };
-        String paramValues1[] = { "1", "2" };
-        String paramValue2 = "3";
-
-        request.param(paramNames[0], paramValues1[0])
-                .param(paramNames[0], paramValues1[1])
-                .param(paramNames[1], paramValue2);
-
-        Multimap<String, String> params = request.getParams();
-        Collection<String> params1 = params.get(paramNames[0]);
-        assertThat(params1).containsExactly(paramValues1);
-        Collection<String> params2 = params.get(paramNames[1]);
-        assertThat(params2).containsExactly(paramValue2);
-    }
-
-    @Test
-    public void shouldThrowExceptionInParamWhenRequestHasAlreadyExecuted() throws Exception {
+    public void shouldThrowExceptionInSetHeaderWithIndexWhenRequestHasAlreadyExecuted() throws Exception {
         executeRequest();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("The test has already been executed");
 
-        request.param("A", "B");
+        request.setHeader(0, "B");
     }
+
+    @Test
+    public void shouldMakeRequestParametersImmutable() throws Exception {
+        executeRequest();
+
+        RequestParameters requestParams = request.getParams();
+        assertThat(requestParams.isMutable()).isFalse();
+    }
+
+    @Test
+    public void shouldAddParams() {
+        String paramName = "A";
+        String paramValue = "B";
+
+        Request retVal = request.param(paramName, paramValue).param("C", "d", "e").param("f", "g");
+
+        assertThat(retVal).isEqualTo(request);
+        List<RequestParameter> param = request.getParam(paramName);
+        assertThat(param).hasSize(1);
+        assertThat(param.get(0)).isEqualTo(new RequestParameterImpl(paramName, paramValue));
+        assertThat(request.paramIndexOf(paramName)).containsExactly(0);
+        assertThat(request.getParam(0)).isSameAs(param.get(0));
+    }
+
 
     @Test
     public void shouldExecuteAgainstRequestExecutor() throws Exception {
@@ -195,7 +205,7 @@ public class RequestImplTests {
                 .expectIfUnset(condition3);
 
         List<ResponseCondition> expectations = request.getExpectations();
-        assertThat(expectations.size()).isEqualTo(2);
+        assertThat(expectations).hasSize(2);
         assertThat(expectations).contains(condition1);
         assertThat(expectations).contains(condition2);
     }

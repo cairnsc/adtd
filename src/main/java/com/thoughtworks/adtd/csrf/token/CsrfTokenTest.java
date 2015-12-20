@@ -1,8 +1,6 @@
 package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.*;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
@@ -14,16 +12,14 @@ import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
  */
 public class CsrfTokenTest implements RequestExecutor {
     private final TestStrategy testStrategy;
-    private final Form form;
-    private final FormData formData;
+    private final RequestInfo requestInfo;
     private final ResponseValidator validator;
     private Request request;
     private Response response;
 
-    public CsrfTokenTest(TestStrategy testStrategy, Form form, FormData formData, ResponseValidator validator) {
+    public CsrfTokenTest(TestStrategy testStrategy, RequestInfo requestInfo, ResponseValidator validator) {
         this.testStrategy = testStrategy;
-        this.form = form;
-        this.formData = formData;
+        this.requestInfo = requestInfo;
         this.validator = validator;
     }
 
@@ -37,10 +33,8 @@ public class CsrfTokenTest implements RequestExecutor {
             throw new IllegalStateException("A request has already been prepared for this test");
         }
 
-        request = form.createRequest(this);
-        testStrategy.mutateFormData(formData);
-        formData.setImmutable();
-        formData.setRequestParams(request);
+        request = requestInfo.createRequest(this);
+        testStrategy.mutateRequest(request);
         return request;
     }
 

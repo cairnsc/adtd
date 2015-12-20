@@ -12,7 +12,7 @@ public class TestStrategyBasic implements TestStrategy {
         this.xssPayload = xssPayload;
     }
 
-    public XssPayload getPayload() {
+    public XssPayload getXssPayload() {
         return xssPayload;
     }
 

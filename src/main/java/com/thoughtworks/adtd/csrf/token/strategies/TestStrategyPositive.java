@@ -1,19 +1,18 @@
 package com.thoughtworks.adtd.csrf.token.strategies;
 
-import com.thoughtworks.adtd.html.FormData;
+import com.thoughtworks.adtd.http.Request;
 
 public class TestStrategyPositive implements TestStrategy {
-    private final String tokenInputName;
+    private final int paramIndex;
 
-    public TestStrategyPositive(String tokenInputName) {
-        this.tokenInputName = tokenInputName;
+    public TestStrategyPositive(int paramIndex) {
+        this.paramIndex = paramIndex;
     }
 
-    public String getTokenInputName() {
-        return tokenInputName;
+    public int getParamIndex() {
+        return paramIndex;
     }
 
-    public void mutateFormData(FormData formData) {
+    public void mutateRequest(Request request) {
     }
-
 }

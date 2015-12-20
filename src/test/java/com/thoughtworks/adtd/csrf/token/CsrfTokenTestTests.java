@@ -1,12 +1,9 @@
 package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import com.thoughtworks.adtd.testutil.BasicHtml;
-import com.thoughtworks.adtd.testutil.BasicHtmlForm;
 import com.thoughtworks.adtd.testutil.TestResponse;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,16 +20,15 @@ public class CsrfTokenTestTests {
     public ExpectedException expectedException = ExpectedException.none();
     private WebProxy webProxyMock;
     private TestStrategy testStrategyMock;
-    private Form formMock;
-    private FormData formDataMock;
     private ResponseValidator responseValidatorMock;
     private CsrfTokenTest test;
     private Request request;
     private Response response;
+    private RequestInfo requestInfoMock;
 
     @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request has already been prepared for this test");
@@ -42,20 +38,18 @@ public class CsrfTokenTestTests {
 
     @Test
     public void shouldPrepareRequest() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
 
         test.prepare();
 
-        InOrder inOrder = inOrder(formMock, testStrategyMock, formDataMock);
-        inOrder.verify(formMock).createRequest(test);
-        inOrder.verify(testStrategyMock).mutateFormData(formDataMock);
-        inOrder.verify(formDataMock).setImmutable();
-        inOrder.verify(formDataMock).setRequestParams(request);
+        InOrder inOrder = inOrder(requestInfoMock, testStrategyMock);
+        inOrder.verify(requestInfoMock).createRequest(test);
+        inOrder.verify(testStrategyMock).mutateRequest(request);
     }
 
     @Test
     public void shouldExecuteRequestUsingWebProxy() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
 
         Response result = prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
 
@@ -65,7 +59,7 @@ public class CsrfTokenTestTests {
 
     @Test
     public void shouldRegisterHasStatusCodeConditionInRequestIfUnsetDuringExecute() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
 
         prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
 
@@ -76,7 +70,7 @@ public class CsrfTokenTestTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestCreated() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
 
@@ -85,7 +79,7 @@ public class CsrfTokenTestTests {
 
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestExecuted() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
@@ -95,7 +89,7 @@ public class CsrfTokenTestTests {
 
     @Test
     public void shouldInvokeValidatorInAssertResponse() throws Exception {
-        createTest(BasicHtmlForm.HIDDEN_TOKEN_NAME);
+        createTest();
         prepareAndExecuteRequest(200, BasicHtml.HTML);
 
         test.assertResponse();
@@ -103,14 +97,13 @@ public class CsrfTokenTestTests {
         verify(responseValidatorMock).validate(request, response);
     }
 
-    private void createTest(String tokenInputName) throws Exception {
+    private void createTest() throws Exception {
         testStrategyMock = mock(TestStrategy.class);
-        formMock = mock(Form.class);
-        formDataMock = mock(FormData.class);
+        requestInfoMock = mock(RequestInfo.class);
         responseValidatorMock = mock(ResponseValidator.class);
-        test = new CsrfTokenTest(testStrategyMock, formMock, formDataMock, responseValidatorMock);
+        test = new CsrfTokenTest(testStrategyMock, requestInfoMock, responseValidatorMock);
         request = createRequest();
-        when(formMock.createRequest(test)).thenReturn(request);
+        when(requestInfoMock.createRequest(test)).thenReturn(request);
     }
 
     private Request createRequest() throws Exception {

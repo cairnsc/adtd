@@ -1,26 +1,27 @@
 package com.thoughtworks.adtd.injection.http;
 
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
+import com.thoughtworks.adtd.http.RequestInfo;
 
 import java.util.Iterator;
 
+/**
+ * Orchestrator for HTTP response splitting tests.
+ */
 public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpResponseSplittingTest> {
-    private final Form form;
+    private final RequestInfo requestInfo;
     private int currentIdx;
 
-    public HttpResponseSplittingTestOrchestrator(Form form) {
-        this.form = form;
+    public HttpResponseSplittingTestOrchestrator(RequestInfo requestInfo) {
+        this.requestInfo = requestInfo;
         currentIdx = 0;
     }
 
     public boolean hasNext() {
-        return (currentIdx < form.countFormFields());
+        return (currentIdx < requestInfo.getRequestParameters().size());
     }
 
     public HttpResponseSplittingTest next() {
-        FormData formData = new FormData(form);
-        HttpResponseSplittingTest test = new HttpResponseSplittingTest(form, formData, currentIdx);
+        HttpResponseSplittingTest test = new HttpResponseSplittingTest(requestInfo, currentIdx);
         currentIdx++;
         return test;
     }
@@ -30,6 +31,6 @@ public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpRespo
     }
 
     public int count() {
-        return form.countFormFields();
+        return requestInfo.getRequestParameters().size();
     }
 }

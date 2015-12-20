@@ -1,7 +1,5 @@
 package com.thoughtworks.adtd.injection.http;
 
-import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.FormData;
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.testutil.BasicHtml;
 import com.thoughtworks.adtd.testutil.TestResponse;
@@ -10,7 +8,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InOrder;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -20,23 +19,21 @@ public class HttpResponseSplittingTestTests {
     public ExpectedException expectedException = ExpectedException.none();
     private HttpResponseSplittingTest test;
     private WebProxy webProxyMock;
-    private Form formMock;
-    private FormData formData;
+    private RequestInfo requestInfoMock;
     private Request request;
     private TestResponse response;
+    private RequestParameters requestParametersMock;
 
     @Before
     public void setUp() {
         webProxyMock = mock(WebProxy.class);
-        formMock = mock(Form.class);
-        formData = spy(new FormData());
-        formData.addFormField("a", "A");
-        formData.addFormField("b", "B");
+        requestInfoMock = mock(RequestInfo.class);
     }
 
     @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
         createTest(0);
+        request.param("a", "b");
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request has already been prepared for this test");
@@ -46,21 +43,23 @@ public class HttpResponseSplittingTestTests {
 
     @Test
     public void shouldPrepareRequest() throws Exception {
-        int fieldIdx = 1;
-        createTest(fieldIdx);
+        int paramIndex = 1;
+        String replacedParam = "c";
+        createTest(paramIndex);
+        request.param("a", "b").param(replacedParam, "d");
 
-        Request request = test.prepare();
+        test.prepare();
 
-        InOrder inOrder = inOrder(formMock, formData);
-        inOrder.verify(formMock).createRequest(test);
-        inOrder.verify(formData).setFormField(fieldIdx, HttpResponseSplittingTest.TEST_STRING);
-        inOrder.verify(formData).setImmutable();
-        inOrder.verify(formData).setRequestParams(request);
+        verify(requestInfoMock).createRequest(test);
+        List<RequestParameter> param = request.getParam(replacedParam);
+        assertThat(param).hasSize(1);
+        assertThat(param.get(0).getValues()).containsExactly(HttpResponseSplittingTest.TEST_STRING);
     }
 
     @Test
     public void shouldExecuteRequestUsingWebProxy() throws Exception {
         createTest(0);
+        request.param("a", "b");
         createResponse(200, BasicHtml.HTML);
 
         test.prepare().execute(webProxyMock);
@@ -71,6 +70,7 @@ public class HttpResponseSplittingTestTests {
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestCreated() throws Exception {
         createTest(0);
+        request.param("a", "b");
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
 
@@ -80,6 +80,7 @@ public class HttpResponseSplittingTestTests {
     @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestExecuted() throws Exception {
         createTest(0);
+        request.param("a", "b");
         test.prepare();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("A request must first be prepared and executed for this test");
@@ -90,6 +91,7 @@ public class HttpResponseSplittingTestTests {
     @Test
     public void shouldThrowExceptionWhenResponseContainsSplitHeader() throws Exception {
         createTest(0);
+        request.param("a", "b");
         createResponse(200, BasicHtml.HTML);
         response.addHeader(HttpResponseSplittingTest.TEST_HEADER, "test");
         test.prepare().execute(webProxyMock);
@@ -102,6 +104,7 @@ public class HttpResponseSplittingTestTests {
     @Test
     public void shouldPassWhenResponseLacksSplitHeader() throws Exception {
         createTest(0);
+        request.param("a", "b");
         createResponse(200, BasicHtml.HTML);
         response.addHeader("Test", "test");
         test.prepare().execute(webProxyMock);
@@ -109,10 +112,10 @@ public class HttpResponseSplittingTestTests {
         test.assertResponse();
     }
 
-    private void createTest(int fieldIdx) throws Exception {
-        test = new HttpResponseSplittingTest(formMock, formData, fieldIdx);
+    private void createTest(int paramIndex) throws Exception {
+        test = new HttpResponseSplittingTest(requestInfoMock, paramIndex);
         request = new RequestImpl(test);
-        when(formMock.createRequest(test)).thenReturn(request);
+        when(requestInfoMock.createRequest(test)).thenReturn(request);
     }
 
     private Response createResponse(int statusCode, String body) throws Exception {

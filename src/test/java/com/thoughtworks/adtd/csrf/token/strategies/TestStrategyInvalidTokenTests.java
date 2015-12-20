@@ -1,29 +1,34 @@
 package com.thoughtworks.adtd.csrf.token.strategies;
 
-import com.thoughtworks.adtd.html.FormData;
-import com.thoughtworks.adtd.html.FormFieldData;
+import com.thoughtworks.adtd.http.Request;
+import com.thoughtworks.adtd.http.RequestParameterImpl;
+import com.thoughtworks.adtd.http.RequestParameters;
+import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TestStrategyInvalidTokenTests {
-
     @Test
-    public void shouldMutateToken() {
-        String tokenInputName = "test";
-        TestStrategyInvalidToken strategy = new TestStrategyInvalidToken(tokenInputName);
-        FormData formData = mock(FormData.class);
+    public void shouldMutateToken() throws AssertionFailureException {
+        int paramIndex = 1;
         String tokenInputValue = "AAA-BBB-CCC";
-        when(formData.getFormField(tokenInputName)).thenReturn(new FormFieldData(null, tokenInputName, tokenInputValue));
+        Request requestMock = mock(Request.class);
+        RequestParameters requestParamsMock = mock(RequestParameters.class);
+        when(requestMock.getParams()).thenReturn(requestParamsMock);
+        RequestParameterImpl requestParameter = new RequestParameterImpl("test", tokenInputValue);
+        when(requestParamsMock.getParam(paramIndex)).thenReturn(requestParameter);
+        TestStrategyInvalidToken strategy = new TestStrategyInvalidToken(paramIndex);
 
-        strategy.mutateFormData(formData);
+        strategy.mutateRequest(requestMock);
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-        verify(formData).setFormField(eq(tokenInputName), argument.capture());
+        verify(requestParamsMock).setParam(eq(paramIndex), argument.capture());
         assertThat(argument.getValue()).isNotEqualTo(tokenInputValue);
         assertThat(argument.getValue().length()).isEqualTo(tokenInputValue.length());
     }
-
 }

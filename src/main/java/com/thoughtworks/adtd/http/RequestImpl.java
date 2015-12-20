@@ -1,6 +1,8 @@
 package com.thoughtworks.adtd.http;
 
-import com.google.common.collect.LinkedListMultimap;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -13,16 +15,16 @@ public class RequestImpl implements Request {
     private RequestExecutor requestExecutor;
     private String method;
     private String uri;
-    private final LinkedListMultimap<String, String> headers;
-    private final LinkedListMultimap<String, String> params;
+    private final List<Header> headers;
+    private final RequestParameters params;
     private final List<ResponseCondition> responseExpectations;
     private final List<ResponseProcessor> responseProcessors;
     private Response response;
 
     public RequestImpl(RequestExecutor requestExecutor) {
         this.requestExecutor = requestExecutor;
-        headers = LinkedListMultimap.create();
-        params = LinkedListMultimap.create();
+        headers = newArrayList();
+        params = new RequestParameters();
         responseExpectations = newArrayList();
         responseProcessors = newArrayList();
     }
@@ -50,25 +52,54 @@ public class RequestImpl implements Request {
     public Request header(String name, String... values) {
         checkMutability();
         for (String value : values) {
-            headers.put(name, value);
+            headers.add(new Header(name, value));
         }
         return this;
     }
 
-    public Multimap<String, String> getHeaders() {
-        return Multimaps.unmodifiableMultimap(headers);
+    public void setHeader(int index, String value) {
+        checkMutability();
+        headers.set(index, new Header(headers.get(index).getName(), value));
+    }
+
+    public List<Header> getHeader(String name) {
+        List<Header> result = newArrayList();
+        for (Header header : headers) {
+            if (header.nameEquals(name)) {
+                result.add(header);
+            }
+        }
+        return result;
+    }
+
+    public Multimap<String, Header> getHeaders() {
+        return Multimaps.index(headers, new Function<Header, String>() {
+            public String apply(Header header) {
+                return header.getName();
+            }
+        });
     }
 
     public Request param(String name, String... values) {
         checkMutability();
-        for (String value : values) {
-            params.put(name, value);
-        }
+        params.param(name, values);
         return this;
     }
 
-    public Multimap<String, String> getParams() {
-        return Multimaps.unmodifiableMultimap(params);
+    public List<RequestParameter> getParam(String name) {
+        return params.getParam(name);
+    }
+
+    public RequestParameter getParam(int index) {
+        return params.getParam(index);
+    }
+
+    public List<Integer> paramIndexOf(String name) {
+        return params.paramIndexOf(name);
+    }
+
+    public RequestParameters getParams() {
+        return params;
     }
 
     public Request expect(ResponseCondition condition) {
@@ -107,6 +138,7 @@ public class RequestImpl implements Request {
         if (response == null) {
             throw new InvalidResponseException("RequestExecutor execute returned null");
         }
+        params.setImmutable();
 
         verifyConditions();
         processResponse();

@@ -87,10 +87,10 @@ public class RequestImplTests {
                 .header(headerNames[1], headerValue2);
 
         assertThat(request.getHeader(headerNames[0])).containsExactly(
-                new Header(headerNames[0], headerValues1[0]),
-                new Header(headerNames[0], headerValues1[1])
+                new HeaderImpl(headerNames[0], headerValues1[0]),
+                new HeaderImpl(headerNames[0], headerValues1[1])
         );
-        assertThat(request.getHeader(headerNames[1])).containsExactly(new Header(headerNames[1], headerValue2));
+        assertThat(request.getHeader(headerNames[1])).containsExactly(new HeaderImpl(headerNames[1], headerValue2));
     }
 
     @Test

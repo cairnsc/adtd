@@ -1,8 +1,7 @@
 package com.thoughtworks.adtd.http;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -15,7 +14,7 @@ public class RequestImpl implements Request {
     private RequestExecutor requestExecutor;
     private String method;
     private String uri;
-    private final List<Header> headers;
+    private final List<HeaderImpl> headers;
     private final RequestParameters params;
     private final List<ResponseCondition> responseExpectations;
     private final List<ResponseProcessor> responseProcessors;
@@ -52,19 +51,19 @@ public class RequestImpl implements Request {
     public Request header(String name, String... values) {
         checkMutability();
         for (String value : values) {
-            headers.add(new Header(name, value));
+            headers.add(new HeaderImpl(name, value));
         }
         return this;
     }
 
     public void setHeader(int index, String value) {
         checkMutability();
-        headers.set(index, new Header(headers.get(index).getName(), value));
+        headers.get(index).setValue(value);
     }
 
     public List<Header> getHeader(String name) {
         List<Header> result = newArrayList();
-        for (Header header : headers) {
+        for (HeaderImpl header : headers) {
             if (header.nameEquals(name)) {
                 result.add(header);
             }
@@ -73,11 +72,11 @@ public class RequestImpl implements Request {
     }
 
     public Multimap<String, Header> getHeaders() {
-        return Multimaps.index(headers, new Function<Header, String>() {
-            public String apply(Header header) {
-                return header.getName();
-            }
-        });
+        LinkedListMultimap<String, Header> result = LinkedListMultimap.create();
+        for (HeaderImpl header : headers) {
+            result.put(header.getName(), header);
+        }
+        return result;
     }
 
     public Request param(String name, String... values) {

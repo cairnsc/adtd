@@ -9,13 +9,13 @@ import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestStrategyIteratorBasicTests {
+public class TestStrategyIteratorInjectedTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldExhaustIterator() {
-        TestStrategyIteratorBasic iterator = new TestStrategyIteratorBasic();
+        TestStrategyIteratorInjected iterator = new TestStrategyIteratorInjected();
         int count = iterator.count();
         assertThat(count).isEqualTo(XssPayload.PAYLOAD_LIST.length);
 
@@ -31,7 +31,7 @@ public class TestStrategyIteratorBasicTests {
 
     @Test
     public void shouldThrowExceptionOnNextWhenIteratorExhausted() {
-        TestStrategyIteratorBasic iterator = new TestStrategyIteratorBasic();
+        TestStrategyIteratorInjected iterator = new TestStrategyIteratorInjected();
         while (iterator.hasNext()) {
             iterator.next();
         }
@@ -42,7 +42,7 @@ public class TestStrategyIteratorBasicTests {
 
     @Test
     public void shouldThrowExceptionOnRemove() {
-        TestStrategyIteratorBasic iterator = new TestStrategyIteratorBasic();
+        TestStrategyIteratorInjected iterator = new TestStrategyIteratorInjected();
         expectedException.expect(UnsupportedOperationException.class);
 
         iterator.remove();

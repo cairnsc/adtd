@@ -10,14 +10,14 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class TestStrategyFormFieldTests {
+public class TestStrategyRequestParamTests {
     @Test
     public void shouldCreateRequestWithFormAndFormData() throws Exception {
         RequestInfo requestInfoMock = mock(RequestInfo.class);
         int paramIndex = 2;
         String testPattern = "test";
         XssPayload xssPayload = new XssPayload(testPattern);
-        TestStrategyFormField strategy = new TestStrategyFormField(requestInfoMock, paramIndex, xssPayload);
+        TestStrategyRequestParam strategy = new TestStrategyRequestParam(requestInfoMock, paramIndex, xssPayload);
         RequestExecutor requestExecutor = mock(RequestExecutor.class);
         Request requestMock = mock(Request.class);
         when(requestInfoMock.createRequest(requestExecutor, null)).thenReturn(requestMock);
@@ -33,7 +33,7 @@ public class TestStrategyFormFieldTests {
     @Test
     public void shouldMatchWithXssPattern() {
         XssPayload xssPayloadMock = mock(XssPayload.class);
-        TestStrategyFormField strategy = new TestStrategyFormField(mock(RequestInfo.class), 1, xssPayloadMock);
+        TestStrategyRequestParam strategy = new TestStrategyRequestParam(mock(RequestInfo.class), 1, xssPayloadMock);
         String content = "aaa";
 
         boolean matches = strategy.matches(content);

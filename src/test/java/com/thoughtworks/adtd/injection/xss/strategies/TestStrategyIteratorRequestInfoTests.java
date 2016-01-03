@@ -1,7 +1,6 @@
 package com.thoughtworks.adtd.injection.xss.strategies;
 
 import com.thoughtworks.adtd.http.RequestInfo;
-import com.thoughtworks.adtd.http.RequestParameter;
 import com.thoughtworks.adtd.http.RequestParameters;
 import com.thoughtworks.adtd.injection.xss.XssPayload;
 import org.junit.Before;
@@ -9,18 +8,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.thoughtworks.adtd.testutil.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestStrategyIteratorFormTests {
+public class TestStrategyIteratorRequestInfoTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private TestStrategyIteratorForm iterator;
+    private TestStrategyIteratorRequestInfo iterator;
     private RequestInfo requestInfoMock;
     private RequestParameters requestParameters;
 
@@ -31,12 +28,12 @@ public class TestStrategyIteratorFormTests {
         requestParameters.param("a", "A");
         requestParameters.param("b", "B");
         when(requestInfoMock.getRequestParameters()).thenReturn(requestParameters);
-        iterator = new TestStrategyIteratorForm(requestInfoMock);
+        iterator = new TestStrategyIteratorRequestInfo(requestInfoMock);
     }
 
     @Test
     public void shouldCreateTestStrategy() {
-        TestStrategyFormField next = (TestStrategyFormField)iterator.next();
+        TestStrategyRequestParam next = (TestStrategyRequestParam)iterator.next();
         assertThat(next.getParamIndex()).isEqualTo(0);
     }
 
@@ -47,7 +44,7 @@ public class TestStrategyIteratorFormTests {
 
         int idx;
         for (idx = 0; idx < count; idx++) {
-            TestStrategyFormField next = (TestStrategyFormField)iterator.next();
+            TestStrategyRequestParam next = (TestStrategyRequestParam)iterator.next();
             assertThat(next).isNotNull();
             assertThat(next.getParamIndex()).isEqualTo((idx + 1) / XssPayload.PAYLOAD_LIST.length);
         }
@@ -58,7 +55,7 @@ public class TestStrategyIteratorFormTests {
 
     @Test
     public void shouldThrowExceptionOnNextWhenIteratorExhausted() {
-        TestStrategyIteratorBasic iterator = new TestStrategyIteratorBasic();
+        TestStrategyIteratorInjected iterator = new TestStrategyIteratorInjected();
         while (iterator.hasNext()) {
             iterator.next();
         }

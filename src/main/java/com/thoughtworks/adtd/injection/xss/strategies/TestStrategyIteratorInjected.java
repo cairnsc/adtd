@@ -4,10 +4,17 @@ import com.thoughtworks.adtd.injection.xss.XssPayload;
 
 import java.util.NoSuchElementException;
 
-public class TestStrategyIteratorBasic implements TestStrategyIterator {
+/**s
+ * Test strategy iterator for tests where the XSS payload will be injected into the response. Intended primarily for use
+ * when testing for persistent XSS.
+ */
+public class TestStrategyIteratorInjected implements TestStrategyIterator {
     private int currentIdx;
 
-    public TestStrategyIteratorBasic() {
+    /**
+     * Instantiate a TestStrategyIteratorInjected.
+     */
+    public TestStrategyIteratorInjected() {
         currentIdx = 0;
     }
 
@@ -22,7 +29,7 @@ public class TestStrategyIteratorBasic implements TestStrategyIterator {
 
         XssPayload payload = new XssPayload(XssPayload.PAYLOAD_LIST[currentIdx]);
         currentIdx++;
-        return new TestStrategyBasic(payload);
+        return new TestStrategyInject(payload);
     }
 
     public void remove() {

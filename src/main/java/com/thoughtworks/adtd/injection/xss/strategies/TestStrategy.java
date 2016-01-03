@@ -4,6 +4,9 @@ import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.injection.xss.XssPayload;
 
+/**
+ * Interface for an XSS test strategy. Responsible for creating a request with an XSS payload.
+ */
 public interface TestStrategy {
     /**
      * Get the XSS payload being used in the strategy.

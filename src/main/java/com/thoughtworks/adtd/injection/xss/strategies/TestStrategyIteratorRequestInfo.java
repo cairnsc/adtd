@@ -6,14 +6,19 @@ import com.thoughtworks.adtd.injection.xss.XssPayload;
 import java.util.NoSuchElementException;
 
 /**
- * Test strategy iterator to iterate over the fields in a form.
+ * Test strategy iterator to test XSS payloads against each request parameter in a RequestInfo. Intended to test for
+ * reflected XSS.
  */
-public class TestStrategyIteratorForm implements TestStrategyIterator {
+public class TestStrategyIteratorRequestInfo implements TestStrategyIterator {
     private final RequestInfo requestInfo;
     private int currentFormFieldIdx;
     private int currentPayloadIdx;
 
-    public TestStrategyIteratorForm(RequestInfo requestInfo) {
+    /**
+     * Instantiate a TestStrategyIteratorRequestInfo.
+     * @param requestInfo RequestInfo containing request parameters to test.
+     */
+    public TestStrategyIteratorRequestInfo(RequestInfo requestInfo) {
         this.requestInfo = requestInfo;
         currentFormFieldIdx = 0;
         currentPayloadIdx = 0;
@@ -34,7 +39,7 @@ public class TestStrategyIteratorForm implements TestStrategyIterator {
             currentFormFieldIdx++;
             currentPayloadIdx = 0;
         }
-        return new TestStrategyFormField(requestInfo, currentFormFieldIdx, payload);
+        return new TestStrategyRequestParam(requestInfo, currentFormFieldIdx, payload);
     }
 
     public void remove() {

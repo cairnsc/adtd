@@ -37,11 +37,13 @@ public class XssTestOrchestratorTests {
     @Test
     public void shouldGetNext() {
         TestStrategy testStrategy = mock(TestStrategy.class);
+        XssPayload xssPayload = new XssPayload("abc123");
+        when(testStrategy.getXssPayload()).thenReturn(xssPayload);
         when(testStrategyIterator.next()).thenReturn(testStrategy);
 
         XssTest next = orchestrator.next();
 
-        assertThat(next.getTestStrategy()).isSameAs(testStrategy);
+        assertThat(next.getXssPayload()).isEqualTo(xssPayload);
     }
 
     @Test

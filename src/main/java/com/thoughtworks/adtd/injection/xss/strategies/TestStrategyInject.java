@@ -5,10 +5,13 @@ import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.http.RequestImpl;
 import com.thoughtworks.adtd.injection.xss.XssPayload;
 
-public class TestStrategyBasic implements TestStrategy {
+/**
+ * Test strategy for a request where the XSS payload will be injected into the response.
+ */
+public class TestStrategyInject implements TestStrategy {
     private final XssPayload xssPayload;
 
-    public TestStrategyBasic(XssPayload xssPayload) {
+    public TestStrategyInject(XssPayload xssPayload) {
         this.xssPayload = xssPayload;
     }
 

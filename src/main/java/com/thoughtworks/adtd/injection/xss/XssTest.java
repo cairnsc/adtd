@@ -8,10 +8,7 @@ import static com.thoughtworks.adtd.http.ResponseConditionFactory.body;
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
 /**
- * Simple test for Cross-site Scripting (XSS). Performs basic pattern matching against a response.
- *
- * Read about XSS at https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)
- * XSS filter evasion cheat sheet: https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
+ * Simple test for Cross-site Scripting (XSS).
  */
 public class XssTest implements RequestExecutor {
     private final TestStrategy testStrategy;
@@ -19,10 +16,6 @@ public class XssTest implements RequestExecutor {
 
     public XssTest(TestStrategy testStrategy) {
         this.testStrategy = testStrategy;
-    }
-
-    public TestStrategy getTestStrategy() {
-        return testStrategy;
     }
 
     public XssPayload getXssPayload() {

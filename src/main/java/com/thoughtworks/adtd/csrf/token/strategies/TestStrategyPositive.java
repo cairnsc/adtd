@@ -14,5 +14,6 @@ public class TestStrategyPositive implements TestStrategy {
     }
 
     public void mutateRequest(Request request) {
+        // do nothing for positive test
     }
 }

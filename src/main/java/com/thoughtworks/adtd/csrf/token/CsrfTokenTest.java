@@ -6,9 +6,13 @@ import com.thoughtworks.adtd.http.*;
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
 /**
- * Test to validate CSRF protection using the synchronizer token pattern.
+ * Test to verify CSRF protection where the synchronizer token pattern is used.
  *
- * Read about the synchronizer token pattern at https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
+ * <p>To run the test:<br>
+ *  1. Prepare a Request with {@link #prepare()}.<br>
+ *  2. Modify the Request as needed.<br>
+ *  3. Execute the test with {@link #execute(WebProxy)}.<br>
+ *  4. Verify the response with {@link #assertResponse()}.
  */
 public class CsrfTokenTest implements RequestExecutor {
     private final TestStrategy testStrategy;

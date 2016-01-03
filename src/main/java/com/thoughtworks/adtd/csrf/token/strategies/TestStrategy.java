@@ -3,6 +3,9 @@ package com.thoughtworks.adtd.csrf.token.strategies;
 import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 
+/**
+ * Test strategy to mutate a request for a CSRF test.
+ */
 public interface TestStrategy {
     /**
      * Get the request parameter index of the parameter containing the CSRF token being tested.

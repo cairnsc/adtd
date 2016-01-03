@@ -19,10 +19,17 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
+ * Orchestrator to verify Cross-Site Request Forgery (CSRF) protection where the synchronizer token pattern is used.
+ *
+ * Read about the synchronizer token pattern at https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
+ *
+ * The orchestrator sends several test requests to verify CSRF protection is functioning correctly. The response from
+ * the server is evaluated using a caller-provided ResponseValidator.
+ *
  * Tests:
- *  1. Positive case: valid token submitted
- *  2. Negative case: missing token
- *  3. Negative case: invalid token
+ *  1. Positive case: valid CSRF token submitted
+ *  2. Negative case: missing CSRF token
+ *  3. Negative case: invalid CSRF token
  */
 public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {
     private final String tokenInputName;
@@ -30,6 +37,14 @@ public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {
     private List<CsrfTokenTest> testList;
     private final Iterator<CsrfTokenTest> iterator;
 
+    /**
+     * Instantiate a CSRF test orchestrator.
+     * @param requestInfo Request information about how to access the resource being tested. The RequestInfo is
+     *                    immediately made immutable.
+     * @param validator Response validator to determine whether the protection succeeded.
+     * @param tokenInputName Name of the input parameter containing of the CSRF token.
+     * @throws Exception
+     */
     public CsrfTokenTestOrchestrator(RequestInfo requestInfo, ResponseValidator validator, String tokenInputName) throws Exception {
         requestInfo.setImmutable();
         this.tokenInputName = tokenInputName;

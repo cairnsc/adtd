@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class TestStrategyFormFieldTest {
+public class TestStrategyFormFieldTests {
     @Test
     public void shouldCreateRequestWithFormAndFormData() throws Exception {
         RequestInfo requestInfoMock = mock(RequestInfo.class);

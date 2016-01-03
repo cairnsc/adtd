@@ -14,7 +14,7 @@ import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWi
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CsrfFormTokenProcessorTest {
+public class CsrfFormTokenProcessorTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private final FormResponseProcessor formResponseProcessor = mock(FormResponseProcessor.class);

@@ -14,7 +14,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.thoughtworks.adtd.testutil.assertions.Assertions.assertThat;
 
-public class RequestParametersTest {
+public class RequestParametersTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private RequestParameters requestParameters;

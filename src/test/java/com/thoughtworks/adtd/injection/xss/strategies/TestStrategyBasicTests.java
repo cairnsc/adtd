@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class TestStrategyBasicTest {
+public class TestStrategyBasicTests {
     @Test
     public void shouldMatchWithXssPattern() {
         XssPayload xssPayloadMock = mock(XssPayload.class);

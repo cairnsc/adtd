@@ -17,7 +17,7 @@ import static com.thoughtworks.adtd.testutil.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestStrategyIteratorFormTest {
+public class TestStrategyIteratorFormTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private TestStrategyIteratorForm iterator;

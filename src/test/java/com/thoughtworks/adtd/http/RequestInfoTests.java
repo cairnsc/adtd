@@ -13,7 +13,7 @@ import static com.thoughtworks.adtd.testutil.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RequestInfoTest {
+public class RequestInfoTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 

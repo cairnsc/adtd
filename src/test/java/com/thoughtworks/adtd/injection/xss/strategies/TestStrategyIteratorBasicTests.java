@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestStrategyIteratorBasicTest {
+public class TestStrategyIteratorBasicTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 

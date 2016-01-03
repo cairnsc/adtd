@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XssPayloadTest {
+public class XssPayloadTests {
     @Test
     public void shouldMatchPattern() {
         String testPattern = "<script>adtd();</script>";

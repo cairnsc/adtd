@@ -4,6 +4,8 @@ import com.thoughtworks.adtd.http.RequestInfo;
 import com.thoughtworks.adtd.http.RequestParameters;
 import com.thoughtworks.adtd.http.ResponseValidator;
 import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.ShouldHaveNumElements;
+import com.thoughtworks.adtd.util.failureMessages.ShouldNotBeEmpty;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +43,9 @@ public class CsrfTokenTestOrchestratorTests {
     @Test
     public void shouldThrowExceptionIfRequestHasNoCsrfTokens() throws Exception {
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("CSRF token named \"" + TOKEN_INPUT_NAME + "\": expected 1 elements, actual 0");
+        expectedException.expectMessage(ShouldHaveNumElements.shouldHaveNumElements(
+                "CSRF token named \"" + TOKEN_INPUT_NAME + "\"", 1, 0
+        ));
 
         iterator = new CsrfTokenTestOrchestrator(requestInfoMock, responseValidatorMock, TOKEN_INPUT_NAME);
     }
@@ -51,7 +55,9 @@ public class CsrfTokenTestOrchestratorTests {
         requestParameters.param(TOKEN_INPUT_NAME, "1");
         requestParameters.param(TOKEN_INPUT_NAME, "2");
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("CSRF token named \"" + TOKEN_INPUT_NAME + "\": expected 1 elements, actual 2 elements");
+        expectedException.expectMessage(ShouldHaveNumElements.shouldHaveNumElements(
+                "CSRF token named \"" + TOKEN_INPUT_NAME + "\"", 1, 2
+        ));
 
         iterator = new CsrfTokenTestOrchestrator(requestInfoMock, responseValidatorMock, TOKEN_INPUT_NAME);
     }
@@ -60,7 +66,9 @@ public class CsrfTokenTestOrchestratorTests {
     public void shouldThrowExceptionIfParamHasMultipleValues() throws Exception {
         requestParameters.param(TOKEN_INPUT_NAME, "1", "2");
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("CSRF token at request parameter index 0: expected 1 elements, actual 2");
+        expectedException.expectMessage(ShouldHaveNumElements.shouldHaveNumElements(
+                "CSRF token at request parameter index 0", 1, 2
+        ));
 
         iterator = new CsrfTokenTestOrchestrator(requestInfoMock, responseValidatorMock, TOKEN_INPUT_NAME);
     }
@@ -69,7 +77,7 @@ public class CsrfTokenTestOrchestratorTests {
     public void shouldThrowExceptionIfParamValueIsEmpty() throws Exception {
         requestParameters.param(TOKEN_INPUT_NAME, "  ");
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("Expected CSRF token at request parameter index 0 to not be empty");
+        expectedException.expectMessage(ShouldNotBeEmpty.shouldNotBeEmpty("CSRF token at request parameter index 0"));
 
         iterator = new CsrfTokenTestOrchestrator(requestInfoMock, responseValidatorMock, TOKEN_INPUT_NAME);
     }

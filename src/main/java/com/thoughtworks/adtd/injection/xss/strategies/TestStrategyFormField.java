@@ -25,7 +25,7 @@ public class TestStrategyFormField implements TestStrategy {
     }
 
     public Request createRequest(RequestExecutor requestExecutor) throws Exception {
-        Request request = requestInfo.createRequest(requestExecutor);
+        Request request = requestInfo.createRequest(requestExecutor, null);
         request.getParams().setParam(paramIndex, xssPayload.getPayload());
         return request;
     }

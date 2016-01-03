@@ -100,7 +100,7 @@ public class RequestInfoTest {
         formFields.add(new FormField("c", "d"));
         RequestInfo requestInfo = new RequestInfo("POST", "/", formFields);
 
-        Request request = requestInfo.createRequest(mock(RequestExecutor.class));
+        Request request = requestInfo.createRequest(mock(RequestExecutor.class), null);
 
         assertThat(request.getMethod()).isEqualTo(requestInfo.getMethod());
         assertThat(request.getUri()).isEqualTo(requestInfo.getUri());

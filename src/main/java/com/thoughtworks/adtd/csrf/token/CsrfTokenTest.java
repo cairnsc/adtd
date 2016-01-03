@@ -28,6 +28,14 @@ public class CsrfTokenTest implements RequestExecutor {
     }
 
     /**
+     * Determine whether the test is positive (valid, non-breaking) or negative (invalid, breaking).
+     * @return Boolean indicating whether the test is positive or negative.
+     */
+    public boolean isPositiveTest() {
+        return testStrategy.isPositiveTest();
+    }
+
+    /**
      * Prepare a request to perform the test.
      * @return Request.
      * @throws Exception
@@ -37,7 +45,7 @@ public class CsrfTokenTest implements RequestExecutor {
             throw new IllegalStateException("A request has already been prepared for this test");
         }
 
-        request = requestInfo.createRequest(this);
+        request = requestInfo.createRequest(this, getRequestContext());
         testStrategy.mutateRequest(request);
         return request;
     }
@@ -65,5 +73,9 @@ public class CsrfTokenTest implements RequestExecutor {
 
     private boolean requestIsComplete() {
         return (request != null && response != null);
+    }
+
+    private String getRequestContext() {
+        return "CSRF token test: " + testStrategy.getStrategyName();
     }
 }

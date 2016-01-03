@@ -14,6 +14,15 @@ import static org.mockito.Mockito.*;
 
 public class TestStrategyInvalidTokenTests {
     @Test
+    public void shouldReturnTestStrategyName() {
+        TestStrategyInvalidToken strategy = new TestStrategyInvalidToken(0);
+
+        String strategyName = strategy.getStrategyName();
+
+        assertThat(strategyName).isEqualTo(TestStrategyInvalidToken.STRATEGY_NAME);
+    }
+
+    @Test
     public void shouldMutateToken() throws AssertionFailureException {
         int paramIndex = 1;
         String tokenInputValue = "AAA-BBB-CCC";

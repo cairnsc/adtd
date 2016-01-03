@@ -8,6 +8,18 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
  */
 public interface TestStrategy {
     /**
+     * Get the name of the test strategy.
+     * @return Test strategy name.
+     */
+    String getStrategyName();
+
+    /**
+     * Determine whether the test is positive (valid, non-breaking) or negative (invalid, breaking).
+     * @return Boolean indicating whether the test is positive or negative.
+     */
+    boolean isPositiveTest();
+
+    /**
      * Get the request parameter index of the parameter containing the CSRF token being tested.
      * @return Request parameter index.
      */

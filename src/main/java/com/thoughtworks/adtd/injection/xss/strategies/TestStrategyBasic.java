@@ -17,7 +17,7 @@ public class TestStrategyBasic implements TestStrategy {
     }
 
     public Request createRequest(RequestExecutor requestExecutor) throws Exception {
-        return new RequestImpl(requestExecutor);
+        return new RequestImpl(requestExecutor, "");
     }
 
     public boolean matches(String content) {

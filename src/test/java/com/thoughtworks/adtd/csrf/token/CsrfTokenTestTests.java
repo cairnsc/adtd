@@ -27,6 +27,18 @@ public class CsrfTokenTestTests {
     private RequestInfo requestInfoMock;
 
     @Test
+    public void shouldGetIsPositiveTestFromTestStrategy() throws Exception {
+        createTest();
+        boolean expected = true;
+        when(testStrategyMock.isPositiveTest()).thenReturn(expected);
+
+        boolean actual = test.isPositiveTest();
+
+        verify(testStrategyMock).isPositiveTest();
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     public void shouldThrowExceptionIfPrepareInvokedMoreThanOnce() throws Exception {
         createTest();
         test.prepare();
@@ -39,11 +51,13 @@ public class CsrfTokenTestTests {
     @Test
     public void shouldPrepareRequest() throws Exception {
         createTest();
+        String strategyName = "test strategy";
+        when(testStrategyMock.getStrategyName()).thenReturn(strategyName);
 
         test.prepare();
 
         InOrder inOrder = inOrder(requestInfoMock, testStrategyMock);
-        inOrder.verify(requestInfoMock).createRequest(test);
+        inOrder.verify(requestInfoMock).createRequest(test, "CSRF token test: " + strategyName);
         inOrder.verify(testStrategyMock).mutateRequest(request);
     }
 
@@ -103,11 +117,11 @@ public class CsrfTokenTestTests {
         responseValidatorMock = mock(ResponseValidator.class);
         test = new CsrfTokenTest(testStrategyMock, requestInfoMock, responseValidatorMock);
         request = createRequest();
-        when(requestInfoMock.createRequest(test)).thenReturn(request);
+        when(requestInfoMock.createRequest(eq(test), any(String.class))).thenReturn(request);
     }
 
     private Request createRequest() throws Exception {
-        Request request = new RequestImpl(test);
+        Request request = new RequestImpl(test, null);
         request.method("POST");
         return request;
     }

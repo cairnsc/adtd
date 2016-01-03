@@ -31,7 +31,7 @@ public class HttpResponseSplittingTest implements RequestExecutor {
             throw new IllegalStateException("A request has already been prepared for this test");
         }
 
-        request = requestInfo.createRequest(this);
+        request = requestInfo.createRequest(this, null);
         request.getParams().setParam(paramIndex, TEST_STRING);
         return request;
     }

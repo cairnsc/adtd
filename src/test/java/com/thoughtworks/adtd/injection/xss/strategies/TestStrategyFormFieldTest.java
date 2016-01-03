@@ -20,13 +20,13 @@ public class TestStrategyFormFieldTest {
         TestStrategyFormField strategy = new TestStrategyFormField(requestInfoMock, paramIndex, xssPayload);
         RequestExecutor requestExecutor = mock(RequestExecutor.class);
         Request requestMock = mock(Request.class);
-        when(requestInfoMock.createRequest(requestExecutor)).thenReturn(requestMock);
+        when(requestInfoMock.createRequest(requestExecutor, null)).thenReturn(requestMock);
         RequestParameters requestParametersMock = mock(RequestParameters.class);
         when(requestMock.getParams()).thenReturn(requestParametersMock);
 
         strategy.createRequest(requestExecutor);
 
-        verify(requestInfoMock).createRequest(requestExecutor);
+        verify(requestInfoMock).createRequest(requestExecutor, null);
         verify(requestParametersMock).setParam(paramIndex, testPattern);
     }
 

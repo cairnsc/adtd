@@ -1,9 +1,7 @@
 package com.thoughtworks.adtd.http;
 
-import com.google.common.base.Function;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +9,8 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class RequestImpl implements Request {
-    private RequestExecutor requestExecutor;
+    private final RequestExecutor requestExecutor;
+    private final String context;
     private String method;
     private String uri;
     private final List<HeaderImpl> headers;
@@ -20,8 +19,9 @@ public class RequestImpl implements Request {
     private final List<ResponseProcessor> responseProcessors;
     private Response response;
 
-    public RequestImpl(RequestExecutor requestExecutor) {
+    public RequestImpl(RequestExecutor requestExecutor, String context) {
         this.requestExecutor = requestExecutor;
+        this.context = context;
         headers = newArrayList();
         params = new RequestParameters();
         responseExpectations = newArrayList();
@@ -127,6 +127,10 @@ public class RequestImpl implements Request {
 
     public List<ResponseProcessor> getResponseProcessors() {
         return Collections.unmodifiableList(responseProcessors);
+    }
+
+    public String getContext() {
+        return context;
     }
 
     public Response execute(WebProxy proxy) throws Exception {

@@ -4,9 +4,10 @@ import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.http.Response;
 import com.thoughtworks.adtd.http.ResponseCondition;
 import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.ShouldBeEmpty;
+import com.thoughtworks.adtd.util.failureMessages.ShouldNotBeEmpty;
 
 public class HasContent implements ResponseCondition {
-
     private final boolean shouldHaveContent;
 
     public HasContent() {
@@ -22,11 +23,15 @@ public class HasContent implements ResponseCondition {
 
         if (shouldHaveContent) {
             if (body == null || body.isEmpty()) {
-                throw new AssertionFailureException("HTTP response body is empty");
+                throw new AssertionFailureException(ShouldNotBeEmpty.shouldNotBeEmpty(
+                        "HTTP response body", request.getContext())
+                );
             }
         } else {
             if (body != null && !body.isEmpty()) {
-                throw new AssertionFailureException("HTTP response body is not empty");
+                throw new AssertionFailureException(ShouldBeEmpty.shouldBeEmpty(
+                        "HTTP response body", request.getContext())
+                );
             }
         }
     }
@@ -46,5 +51,4 @@ public class HasContent implements ResponseCondition {
     public int hashCode() {
         return (shouldHaveContent ? 1 : 0);
     }
-
 }

@@ -27,7 +27,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * the server is evaluated using a caller-provided ResponseValidator.
  *
  * Tests:
- *  1. Positive case: valid CSRF token submitted
+ *  1. Positive case: valid (unmodified) CSRF token
  *  2. Negative case: missing CSRF token
  *  3. Negative case: invalid CSRF token
  */
@@ -85,7 +85,7 @@ public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {
     private Integer getParamIndex(RequestInfo requestInfo, String tokenInputName) throws AssertionFailureException {
         List<Integer> paramIndices = requestInfo.getRequestParameters().paramIndexOf(tokenInputName);
         if (paramIndices.size() != 1) {
-            throw new AssertionFailureException(ShouldHaveNumElements.expectedNumElements(
+            throw new AssertionFailureException(ShouldHaveNumElements.shouldHaveNumElements(
                 "CSRF token named \"" +  tokenInputName + "\"", 1, paramIndices.size()
             ));
         }
@@ -96,14 +96,14 @@ public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {
         RequestParameter param = requestParameters.getParam(paramIndex);
         List<String> values = param.getValues();
         if (values.size() != 1) {
-            throw new AssertionFailureException(ShouldHaveNumElements.expectedNumElements(
+            throw new AssertionFailureException(ShouldHaveNumElements.shouldHaveNumElements(
                     "CSRF token at request parameter index " + paramIndex, 1, values.size()
             ));
         }
 
         String value = values.get(0);
         if (StringUtils.isBlank(value)) {
-            throw new AssertionFailureException(ShouldNotBeEmpty.expectedValue(
+            throw new AssertionFailureException(ShouldNotBeEmpty.shouldNotBeEmpty(
                     "CSRF token at request parameter index " + paramIndex
             ));
         }

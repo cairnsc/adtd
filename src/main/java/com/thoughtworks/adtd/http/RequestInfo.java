@@ -108,11 +108,12 @@ public class RequestInfo {
     /**
      * Build a request.
      * @param requestExecutor Request executor.
+     * @param context Context information about the request.
      * @return Created request.
      * @throws Exception
      */
-    public Request createRequest(RequestExecutor requestExecutor) throws Exception {
-        Request request = new RequestImpl(requestExecutor)
+    public Request createRequest(RequestExecutor requestExecutor, String context) throws Exception {
+        Request request = new RequestImpl(requestExecutor, context)
                 .method(method)
                 .uri(uri);
         request.getParams().params(requestParameters);

@@ -95,7 +95,7 @@ public class XssTestTests {
     private void createTestAndRequest() throws Exception {
         testStrategyMock = mock(TestStrategy.class);
         test = new XssTest(testStrategyMock);
-        when(testStrategyMock.createRequest(test)).thenReturn(new RequestImpl(test));
+        when(testStrategyMock.createRequest(test)).thenReturn(new RequestImpl(test, null));
         request = test.prepare();
     }
 

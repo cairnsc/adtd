@@ -8,19 +8,30 @@ import org.jsoup.nodes.Document;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
+/**
+ * A request to perform reconnaissance by inspecting a HTML form. Produces a {@link com.thoughtworks.adtd.html.Form},
+ * which can be used to create a {@link com.thoughtworks.adtd.http.RequestInfo}.
+ */
 public class FormRetrieveRequest implements RequestExecutor {
     private final String formAction;
     private Request request;
     private HtmlResponseProcessor htmlResponseProcessor;
     private FormResponseProcessor formResponseProcessor;
-    private CsrfFormTokenProcessor csrfFormTokenProcessor;
     private String csrfTokenInputName;
-    private Response response;
 
+    /**
+     * Instantiate a FormRetrieveRequest.
+     * @param formAction Form action attribute to identify the form in the HTML document.
+     */
     public FormRetrieveRequest(String formAction) {
         this.formAction = formAction;
     }
 
+    /**
+     * Indicate an input parameter in the form is a CSRF token. Must be invoked before the Request is prepared.
+     * @param tokenInputName Name of the input parameter containing of the CSRF token.
+     * @return This FormRetrieveRequest.
+     */
     public FormRetrieveRequest withCsrfToken(String tokenInputName) {
         checkMutability();
         this.csrfTokenInputName = tokenInputName;
@@ -36,13 +47,13 @@ public class FormRetrieveRequest implements RequestExecutor {
         checkMutability();
         htmlResponseProcessor = new HtmlResponseProcessor();
         formResponseProcessor = new FormResponseProcessor(htmlResponseProcessor, formAction);
-        request = new RequestImpl(this)
+        request = new RequestImpl(this, getRequestContext())
                 .method("GET")
                 .processWith(htmlResponseProcessor)
                 .processWith(formResponseProcessor);
 
         if (csrfTokenInputName != null) {
-            csrfFormTokenProcessor = new CsrfFormTokenProcessor(formResponseProcessor, csrfTokenInputName);
+            CsrfFormTokenProcessor csrfFormTokenProcessor = new CsrfFormTokenProcessor(formResponseProcessor, csrfTokenInputName);
             request.processWith(csrfFormTokenProcessor);
         }
         return request;
@@ -58,7 +69,7 @@ public class FormRetrieveRequest implements RequestExecutor {
     }
 
     /**
-     * Get form retrieved in the request.
+     * Get information about the form retrieved in the request.
      * @return Form.
      * @throws Exception
      */
@@ -72,7 +83,10 @@ public class FormRetrieveRequest implements RequestExecutor {
     }
 
     public void process(Request request, Response response) throws Exception {
-//        this.response = response;
+    }
+
+    private String getRequestContext() {
+        return String.format("FormRetrieveRequest for a form with action=<%s>", formAction);
     }
 
     private void checkMutability() {

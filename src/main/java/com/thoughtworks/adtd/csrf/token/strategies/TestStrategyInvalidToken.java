@@ -7,10 +7,19 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class TestStrategyInvalidToken implements TestStrategy {
+    public static final String STRATEGY_NAME = "Invalid CSRF token (random alphanumeric value of same length)";
     private final int paramIndex;
 
     public TestStrategyInvalidToken(int paramIndex) {
         this.paramIndex = paramIndex;
+    }
+
+    public String getStrategyName() {
+        return STRATEGY_NAME;
+    }
+
+    public boolean isPositiveTest() {
+        return false;
     }
 
     public int getParamIndex() {

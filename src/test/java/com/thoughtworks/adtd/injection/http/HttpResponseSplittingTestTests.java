@@ -50,7 +50,7 @@ public class HttpResponseSplittingTestTests {
 
         test.prepare();
 
-        verify(requestInfoMock).createRequest(test);
+        verify(requestInfoMock).createRequest(test, null);
         List<RequestParameter> param = request.getParam(replacedParam);
         assertThat(param).hasSize(1);
         assertThat(param.get(0).getValues()).containsExactly(HttpResponseSplittingTest.TEST_STRING);
@@ -114,8 +114,8 @@ public class HttpResponseSplittingTestTests {
 
     private void createTest(int paramIndex) throws Exception {
         test = new HttpResponseSplittingTest(requestInfoMock, paramIndex);
-        request = new RequestImpl(test);
-        when(requestInfoMock.createRequest(test)).thenReturn(request);
+        request = new RequestImpl(test, null);
+        when(requestInfoMock.createRequest(test, null)).thenReturn(request);
     }
 
     private Response createResponse(int statusCode, String body) throws Exception {

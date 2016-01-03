@@ -20,7 +20,7 @@ public class RequestImplTests {
     @Before
     public void setUp() {
         requestExecutorMock = mock(RequestExecutor.class);
-        request = new RequestImpl(requestExecutorMock);
+        request = new RequestImpl(requestExecutorMock, null);
     }
 
     @Test

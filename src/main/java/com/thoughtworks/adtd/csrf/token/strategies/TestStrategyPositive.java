@@ -3,10 +3,19 @@ package com.thoughtworks.adtd.csrf.token.strategies;
 import com.thoughtworks.adtd.http.Request;
 
 public class TestStrategyPositive implements TestStrategy {
+    public static final String STRATEGY_NAME = "Valid (unmodified) CSRF token";
     private final int paramIndex;
 
     public TestStrategyPositive(int paramIndex) {
         this.paramIndex = paramIndex;
+    }
+
+    public String getStrategyName() {
+        return STRATEGY_NAME;
+    }
+
+    public boolean isPositiveTest() {
+        return true;
     }
 
     public int getParamIndex() {

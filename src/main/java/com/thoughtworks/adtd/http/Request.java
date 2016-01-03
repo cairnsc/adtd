@@ -82,6 +82,19 @@ public interface Request {
     Request processWith(ResponseProcessor processor);
     List<ResponseProcessor> getResponseProcessors();
 
+    /**
+     * Get context information about the request.
+     * @return Context information about the request, or null if none is set.
+     */
+    String getContext();
+
+    /**
+     * Execute the request. This should never be invoked directly when created by a test, instead invoke the execute
+     * method of the test.
+     * @param proxy Web proxy to execute the request with.
+     * @return Response.
+     * @throws Exception
+     */
     Response execute(WebProxy proxy) throws Exception;
 
     Response getResponse();

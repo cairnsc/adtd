@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.html;
 
+import com.thoughtworks.adtd.http.RequestInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
@@ -102,6 +103,15 @@ public class Form {
      */
     public List<FormField> getFormFields() {
         return Collections.unmodifiableList(formFields);
+    }
+
+    /**
+     * Create a RequestInfo for this form.
+     * @return RequestInfo for this form.
+     * @throws Exception
+     */
+    public RequestInfo getRequestInfo() throws Exception {
+        return new RequestInfo(this);
     }
 }
 

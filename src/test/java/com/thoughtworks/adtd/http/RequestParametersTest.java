@@ -8,6 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,8 +53,8 @@ public class RequestParametersTest {
 
         Multimap<String, RequestParameter> params = requestParameters.getParams();
         assertThat(params.size()).isEqualTo(requestParameters.size()).isEqualTo(1);
-        RequestParameter requestParameter = Iterables.getOnlyElement(params.get(paramName));
-        assertThat(requestParameter.getValues()).containsOnly(paramValue);
+        Collection<RequestParameter> param = params.get(paramName);
+        assertThat(param).containsExactly(new RequestParameterImpl(paramName, paramValue));
     }
 
     @Test
@@ -83,6 +84,7 @@ public class RequestParametersTest {
 
         RequestParameter param = requestParameters.getParam(2);
 
+        assertThat(param.getName()).isEqualTo(paramName);
         assertThat(param.getValues()).containsExactly(paramValue);
     }
 
@@ -93,6 +95,65 @@ public class RequestParametersTest {
         expectedException.expectMessage("RequestParameters is immutable");
 
         requestParameters.param("A", "B");
+    }
+
+    @Test
+    public void shouldAddParamInSetParamByName() {
+        String paramName = "A";
+        String paramValue = "B";
+        requestParameters.setParam("x", "X");
+        requestParameters.setParam("y", "Y");
+
+        requestParameters.setParam(paramName, paramValue);
+
+        List<RequestParameter> params = requestParameters.getParam(paramName);
+        assertThat(params).containsExactly(new RequestParameterImpl(paramName, paramValue));
+        List<Integer> paramIndexOf = requestParameters.paramIndexOf(paramName);
+        assertThat(paramIndexOf).containsExactly(2);
+    }
+
+    @Test
+    public void shouldReplaceParamInSetParamByName() {
+        String paramName = "A";
+        requestParameters.param(paramName, "B", "C");
+
+        String replacementValue = "Z";
+        requestParameters.setParam(paramName, replacementValue);
+
+        List<RequestParameter> params = requestParameters.getParam(paramName);
+        assertThat(params).containsExactly(new RequestParameterImpl(paramName, replacementValue));
+        List<Integer> paramIndexOf = requestParameters.paramIndexOf(paramName);
+        assertThat(paramIndexOf).containsExactly(0);
+    }
+
+    @Test
+    public void shoudlReplaceParamAndRemoveRemainderWithSameNameInSetParamByName() {
+        String paramName = "A";
+        requestParameters.param(paramName, "B", "C");
+        String paramNameExtra1 = "x";
+        requestParameters.setParam(paramNameExtra1, "X", "Y");
+        requestParameters.param(paramName, "D");
+        String paramNameExtra2 = "y";
+        requestParameters.setParam(paramNameExtra2, "Y");
+
+        String replacementValue = "Z";
+        requestParameters.setParam(paramName, replacementValue);
+
+        List<RequestParameter> params = requestParameters.getParam(paramName);
+        assertThat(params).containsExactly(new RequestParameterImpl(paramName, replacementValue));
+        List<Integer> paramIndexOf = requestParameters.paramIndexOf(paramName);
+        assertThat(paramIndexOf).containsExactly(0);
+        assertThat(requestParameters.getParam(paramNameExtra1)).isNotEmpty();
+        assertThat(requestParameters.getParam(paramNameExtra2)).isNotEmpty();
+    }
+
+    @Test
+    public void shouldThrowExceptionInSetParamByNameWhenRequestParametersIsImmutable() throws Exception {
+        requestParameters.setImmutable();
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("RequestParameters is immutable");
+
+        requestParameters.setParam("A", "B");
     }
 
     @Test
@@ -111,7 +172,7 @@ public class RequestParametersTest {
     }
 
     @Test
-    public void shouldThrowExceptionInSetParamWhenRequestParametersIsImmutable() throws Exception {
+    public void shouldThrowExceptionInSetParamByIndexWhenRequestParametersIsImmutable() throws Exception {
         requestParameters.setImmutable();
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("RequestParameters is immutable");

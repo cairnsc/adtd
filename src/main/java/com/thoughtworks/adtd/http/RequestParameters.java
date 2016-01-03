@@ -4,6 +4,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.thoughtworks.adtd.html.FormField;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -50,7 +51,38 @@ public class RequestParameters {
     }
 
     /**
-     * Set a request parameter value at an index in the request parameter list.
+     * Set a request parameter by name. If a request parameter with the name already exists, it is replaced at its
+     * current position in the request parameter list. If more than one request parameter exists with the name, the
+     * first is replaced and the remainder are removed. If no request parameters exist with the name, it is added to
+     * the end of the request parameter list.
+     * @param name Name of request parameter.
+     * @param values One or more request parameter values.
+     */
+    public void setParam(String name, String... values) {
+        checkMutability();
+        Iterator<RequestParameterImpl> iterator = params.iterator();
+        boolean hasParam = false;
+
+        while (iterator.hasNext()) {
+            RequestParameterImpl requestParameter = iterator.next();
+            if (requestParameter.getName().equals(name)) {
+                if (!hasParam) {
+                    requestParameter.setValues(values);
+                    hasParam = true;
+                } else {
+                    iterator.remove();
+                }
+            }
+        }
+
+        if (!hasParam) {
+            params.add(new RequestParameterImpl(name, values));
+        }
+    }
+
+    /**
+     * Set a request parameter value at an index in the request parameter list. The values for the request parameter at
+     * the index are replaced.
      * @param index Index of request parameter.
      * @param values One or more request parameter values.
      */

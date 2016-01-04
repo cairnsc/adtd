@@ -4,7 +4,7 @@ import com.thoughtworks.adtd.http.Request;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 
 /**
- * Test strategy to mutate a request for a CSRF test.
+ * Interface for a CSRF test strategy. Responsible for mutating a CSRF token in a request for a test.
  */
 public interface TestStrategy {
     /**

@@ -21,14 +21,15 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Orchestrator to verify Cross-Site Request Forgery (CSRF) protection where the synchronizer token pattern is used.
  *
- * Read about the synchronizer token pattern at https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
+ * <p>Read about the synchronizer token pattern at <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern">
+ * OWASP: Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet: Synchronizer Token Pattern</a>
  *
- * The orchestrator sends several test requests to verify CSRF protection is functioning correctly. The response from
- * the server is evaluated using a caller-provided ResponseValidator.
+ * <p>The orchestrator sends several test requests to verify CSRF protection is functioning correctly. The response from
+ * is evaluated using a caller-provided ResponseValidator.
  *
- * Tests:
- *  1. Positive case: valid (unmodified) CSRF token
- *  2. Negative case: missing CSRF token
+ * <p>Tests:<br>
+ *  1. Positive case: valid (unmodified) CSRF token<br>
+ *  2. Negative case: missing CSRF token<br>
  *  3. Negative case: invalid CSRF token
  */
 public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {

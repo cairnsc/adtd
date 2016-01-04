@@ -6,6 +6,10 @@ import com.thoughtworks.adtd.http.RequestParameters;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 import org.apache.commons.lang3.RandomStringUtils;
 
+/**
+ * Test strategy for a request with an invalid CSRF token. Generates a random alphanumeric value of the same length as
+ * the CSRF token.
+ */
 public class TestStrategyInvalidToken implements TestStrategy {
     public static final String STRATEGY_NAME = "Invalid CSRF token (random alphanumeric value of same length)";
     private final int paramIndex;

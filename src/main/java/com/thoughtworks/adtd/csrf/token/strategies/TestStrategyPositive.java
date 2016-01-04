@@ -2,6 +2,9 @@ package com.thoughtworks.adtd.csrf.token.strategies;
 
 import com.thoughtworks.adtd.http.Request;
 
+/**
+ * Test strategy for a request with a valid CSRF token. This is used to test the positive case.
+ */
 public class TestStrategyPositive implements TestStrategy {
     public static final String STRATEGY_NAME = "Valid (unmodified) CSRF token";
     private final int paramIndex;

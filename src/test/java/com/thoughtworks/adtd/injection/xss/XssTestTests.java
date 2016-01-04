@@ -5,6 +5,7 @@ import com.thoughtworks.adtd.http.responseConditions.body.HasContent;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import com.thoughtworks.adtd.injection.xss.strategies.TestStrategy;
 import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.ShouldNotContain;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -54,13 +55,16 @@ public class XssTestTests {
         createTestAndRequestAndMockedResponse(200, content);
         when(responseMock.getBody()).thenReturn(content);
         when(testStrategyMock.matches(content)).thenReturn(true);
+        String payloadString = "xyz";
+        when(testStrategyMock.getXssPayload()).thenReturn(new XssPayload(payloadString));
         expectedException.expect(AssertionFailureException.class);
-        expectedException.expectMessage("HTTP response body contains injected JavaScript");
+        expectedException.expectMessage(ShouldNotContain.shouldNotContain("HTTP response body", payloadString, request.getContext()));
 
         request.execute(webProxyMock);
 
         test.assertResponse();
     }
+
     @Test
     public void shouldRegisterHasStatusCodeConditionIfUnset() throws Exception {
         createTestAndRequestAndMockedResponse(200, "test");

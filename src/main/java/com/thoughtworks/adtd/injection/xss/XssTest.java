@@ -3,6 +3,7 @@ package com.thoughtworks.adtd.injection.xss;
 import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.injection.xss.strategies.TestStrategy;
 import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.ShouldNotContain;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.body;
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
@@ -18,6 +19,10 @@ public class XssTest implements RequestExecutor {
         this.testStrategy = testStrategy;
     }
 
+    /**
+     * Get the XSS payload this test is using in its request.
+     * @return XSS payload.
+     */
     public XssPayload getXssPayload() {
         return testStrategy.getXssPayload();
     }
@@ -47,7 +52,9 @@ public class XssTest implements RequestExecutor {
         }
 
         if (testStrategy.matches(request.getResponse().getBody())) {
-            throw new AssertionFailureException("HTTP response body contains injected JavaScript");
+            throw new AssertionFailureException(ShouldNotContain.shouldNotContain(
+                    "HTTP response body", getXssPayload().getPayload(), request.getContext()
+            ));
         }
     }
 

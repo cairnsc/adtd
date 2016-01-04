@@ -5,8 +5,6 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 
 /**
  * Test for HTTP response splitting.
- *
- * Read response splitting at https://www.owasp.org/index.php/HTTP_Response_Splitting
  */
 public class HttpResponseSplittingTest implements RequestExecutor {
     public static final String TEST_HEADER = "Bork";

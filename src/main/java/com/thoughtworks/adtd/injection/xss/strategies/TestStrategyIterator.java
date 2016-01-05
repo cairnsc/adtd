@@ -7,5 +7,9 @@ import java.util.Iterator;
  * orchestrator.
  */
 public interface TestStrategyIterator extends Iterator<TestStrategy> {
+    /**
+     * Get a count of the number of test strategies to iterate through.
+     * @return The number of test strategies.
+     */
     int count();
 }

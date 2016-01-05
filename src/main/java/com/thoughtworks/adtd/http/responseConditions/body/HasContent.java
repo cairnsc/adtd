@@ -7,6 +7,9 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 import com.thoughtworks.adtd.util.failureMessages.ShouldBeEmpty;
 import com.thoughtworks.adtd.util.failureMessages.ShouldNotBeEmpty;
 
+/**
+ * Response condition to evaluate whether a response body has content.
+ */
 public class HasContent implements ResponseCondition {
     private final boolean shouldHaveContent;
 

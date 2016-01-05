@@ -10,6 +10,12 @@ import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
 /**
  * Simple test for Cross-site Scripting (XSS).
+ *
+ * <p>To run the test:<br>
+ *  1. Prepare a Request with {@link #prepare()}.<br>
+ *  2. Modify the Request as needed.<br>
+ *  3. Execute the test with {@link #execute(WebProxy)}.<br>
+ *  4. Verify the response with {@link #assertResponse()}.
  */
 public class XssTest implements RequestExecutor {
     private final TestStrategy testStrategy;

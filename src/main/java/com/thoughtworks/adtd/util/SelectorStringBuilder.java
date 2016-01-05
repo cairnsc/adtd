@@ -2,8 +2,10 @@ package com.thoughtworks.adtd.util;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+/**
+ * Utility class to build CSS-like selectors for use with jsoup.
+ */
 public class SelectorStringBuilder {
-
     public static String elementSelector(String element) {
         return element;
     }
@@ -18,5 +20,4 @@ public class SelectorStringBuilder {
         sb.append("\"]");
         return sb.toString();
     }
-
 }

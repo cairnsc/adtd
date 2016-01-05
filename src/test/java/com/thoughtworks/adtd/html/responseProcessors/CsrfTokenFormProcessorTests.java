@@ -14,7 +14,7 @@ import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWi
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CsrfFormTokenProcessorTests {
+public class CsrfTokenFormProcessorTests {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private final FormResponseProcessor formResponseProcessor = mock(FormResponseProcessor.class);
@@ -23,7 +23,7 @@ public class CsrfFormTokenProcessorTests {
     public void shouldThrowExceptionIfTokenWillBeExposedInRequest() throws Exception {
         String tokenInputName = "token";
         mockFormAndElement("GET", tokenInputName, "abc123", "hidden");
-        CsrfFormTokenProcessor processor = new CsrfFormTokenProcessor(formResponseProcessor, tokenInputName);
+        CsrfTokenFormProcessor processor = new CsrfTokenFormProcessor(formResponseProcessor, tokenInputName);
         expectedException.expect(ElementTypeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has method=\"GET\", expected \"POST\"");
 
@@ -34,7 +34,7 @@ public class CsrfFormTokenProcessorTests {
     public void shouldThrowExceptionIfTokenInputValueIsNull() throws Exception {
         String tokenInputName = "token";
         mockFormAndElement("POST", tokenInputName, null, "hidden");
-        CsrfFormTokenProcessor processor = new CsrfFormTokenProcessor(formResponseProcessor, tokenInputName);
+        CsrfTokenFormProcessor processor = new CsrfTokenFormProcessor(formResponseProcessor, tokenInputName);
         expectedException.expect(ElementAttributeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
 
@@ -45,7 +45,7 @@ public class CsrfFormTokenProcessorTests {
     public void shouldThrowExceptionIfTokenInputValueIsEmpty() throws Exception {
         String tokenInputName = "token";
         mockFormAndElement("POST", tokenInputName, " \t", "hidden");
-        CsrfFormTokenProcessor processor = new CsrfFormTokenProcessor(formResponseProcessor, tokenInputName);
+        CsrfTokenFormProcessor processor = new CsrfTokenFormProcessor(formResponseProcessor, tokenInputName);
         expectedException.expect(ElementAttributeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has no value");
 
@@ -56,7 +56,7 @@ public class CsrfFormTokenProcessorTests {
     public void shouldThrowExceptionIfInputTokenIsNotHidden() throws Exception {
         String tokenInputName = "token";
         mockFormAndElement("POST", tokenInputName, "abc123", "text");
-        CsrfFormTokenProcessor processor = new CsrfFormTokenProcessor(formResponseProcessor, tokenInputName);
+        CsrfTokenFormProcessor processor = new CsrfTokenFormProcessor(formResponseProcessor, tokenInputName);
         expectedException.expect(ElementTypeException.class);
         expectedException.expectMessage("Element input with name=\"" + tokenInputName + "\" has type=\"text\", expected \"hidden\"");
 

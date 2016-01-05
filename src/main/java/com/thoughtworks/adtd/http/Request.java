@@ -4,11 +4,34 @@ import com.google.common.collect.Multimap;
 
 import java.util.List;
 
+/**
+ * Represents a HTTP request.
+ */
 public interface Request {
+    /**
+     * Set the request method to use in the request.
+     * @param value Request method.
+     * @return This request.
+     */
     Request method(String value);
+
+    /**
+     * Get the request method.
+     * @return Request method.
+     */
     String getMethod();
 
+    /**
+     * Set the URI to use in the request.
+     * @param value URI.
+     * @return This request.
+     */
     Request uri(String value);
+
+    /**
+     * Get the request URI.
+     * @return Request URI.
+     */
     String getUri();
 
     /**
@@ -30,13 +53,13 @@ public interface Request {
     /**
      * Get headers for a header name.
      * @param name Header name.
-     * @return List of headers.
+     * @return List of request headers.
      */
     List<Header> getHeader(String name);
 
     /**
      * Get a multimap of request headers.
-     * @return Multimap of headers.
+     * @return Multimap of request headers.
      */
     Multimap<String, Header> getHeaders();
 
@@ -75,11 +98,38 @@ public interface Request {
      */
     RequestParameters getParams();
 
+    /**
+     * Add a response condition to verify in the response.
+     * @param condition Response condition.
+     * @return This request.
+     */
     Request expect(ResponseCondition condition);
+
+    /**
+     * Add a response condition to verify in the response if a response condition of the same type does not already
+     * exist. If it does, the given response condition is ignored.
+     * @param condition Response condition.
+     * @return This request.
+     */
     Request expectIfUnset(ResponseCondition condition);
+
+    /**
+     * Get a list of response conditions for this request.
+     * @return List of response conditions.
+     */
     List<ResponseCondition> getExpectations();
 
+    /**
+     * Add a response processor.
+     * @param processor Response processor.
+     * @return This request.
+     */
     Request processWith(ResponseProcessor processor);
+
+    /**
+     * Get a list of response processors for this request.
+     * @return List of response processors.
+     */
     List<ResponseProcessor> getResponseProcessors();
 
     /**
@@ -97,5 +147,9 @@ public interface Request {
      */
     Response execute(WebProxy proxy) throws Exception;
 
+    /**
+     * Get the response received in the request.
+     * @return Response, or null if the request has not been executed.
+     */
     Response getResponse();
 }

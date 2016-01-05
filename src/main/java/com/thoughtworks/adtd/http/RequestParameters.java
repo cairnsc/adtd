@@ -16,11 +16,17 @@ public class RequestParameters {
     private final List<RequestParameterImpl> params;
     private boolean isMutable;
 
+    /**
+     * Constructor for empty request parameters.
+     */
     public RequestParameters() {
         params = newArrayList();
         isMutable = true;
     }
 
+    /**
+     * @param formFields Form fields to create {@link RequestParameter}s from.
+     */
     public RequestParameters(List<FormField> formFields) {
         params = newArrayList();
         isMutable = true;

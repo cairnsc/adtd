@@ -6,6 +6,9 @@ import com.thoughtworks.adtd.http.ResponseProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+/**
+ * Processes the body of a Response to produce a Document object.
+ */
 public class HtmlResponseProcessor implements ResponseProcessor {
     private Response response;
     private Document document;

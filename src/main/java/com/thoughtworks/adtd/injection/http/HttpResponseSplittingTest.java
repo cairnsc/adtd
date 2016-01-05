@@ -5,6 +5,12 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 
 /**
  * Test for HTTP response splitting.
+ *
+ * <p>To run the test:<br>
+ *  1. Prepare a Request with {@link #prepare()}.<br>
+ *  2. Modify the Request as needed.<br>
+ *  3. Execute the test with {@link #execute(WebProxy)}.<br>
+ *  4. Verify the response with {@link #assertResponse()}.
  */
 public class HttpResponseSplittingTest implements RequestExecutor {
     public static final String TEST_HEADER = "Bork";

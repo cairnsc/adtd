@@ -39,7 +39,6 @@ public class CsrfTokenTestOrchestrator implements Iterator<CsrfTokenTest> {
     private final Iterator<CsrfTokenTest> iterator;
 
     /**
-     * Instantiate a CSRF test orchestrator.
      * @param requestInfo Request information about how to access the resource being tested. The RequestInfo is
      *                    immediately made immutable.
      * @param validator Response validator to determine whether the protection succeeded.

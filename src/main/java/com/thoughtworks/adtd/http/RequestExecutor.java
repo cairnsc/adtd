@@ -3,13 +3,13 @@ package com.thoughtworks.adtd.http;
 /**
  * Request executor.
  *
- * When a request the executor is tied to is executed,
- *  1. Request.execute(WebProxy) is invoked by a caller
- *  1a. Request invokes prepare for all its response processors
- *  1b. Request invokes RequestExecutor.execute(WebProxy)
- *  1c. Request verifies its conditions
- *  1d. Request invokes all its response processors
- *  1e. Request invokes RequestExecutor.prepare(Request, Response)
+ * <p>When a request the executor is tied to is executed,
+ *  1. {@link Request#execute(WebProxy)} is invoked by a caller.<br>
+ *  1a. Request invokes {@link ResponseProcessor#prepare(Request)} for all its response processors.<br>
+ *  1b. Request invokes {@link RequestExecutor#execute(WebProxy)}.<br>
+ *  1c. Request verifies its conditions.<br>
+ *  1d. Request invokes {@link ResponseProcessor#process(Request, Response)}  for all its response processors.<br>
+ *  1e. Request invokes {@link RequestExecutor#process(Request, Response)}.<br>
  */
 public interface RequestExecutor {
     /**

@@ -1,6 +1,6 @@
 package com.thoughtworks.adtd.http;
 
-import com.thoughtworks.adtd.html.responseProcessors.CsrfFormTokenProcessor;
+import com.thoughtworks.adtd.html.responseProcessors.CsrfTokenFormProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
@@ -71,7 +71,7 @@ public class FormRetrieveRequestTests {
         List<ResponseProcessor> responseProcessors = request.getResponseProcessors();
         assertThat(responseProcessors.size()).isEqualTo(3);
         int idx1 = ListUtil.indexOfType(responseProcessors, FormResponseProcessor.class);
-        int idx2 = ListUtil.indexOfType(responseProcessors, CsrfFormTokenProcessor.class);
+        int idx2 = ListUtil.indexOfType(responseProcessors, CsrfTokenFormProcessor.class);
         assertThat(idx2).isGreaterThan(idx1);
     }
 

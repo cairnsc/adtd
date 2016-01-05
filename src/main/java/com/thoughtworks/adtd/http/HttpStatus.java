@@ -1,5 +1,8 @@
 package com.thoughtworks.adtd.http;
 
+/**
+ * Enumeration of HTTP status codes and their respective reason phrases.
+ */
 public enum HttpStatus {
     OK(200, "OK");
 

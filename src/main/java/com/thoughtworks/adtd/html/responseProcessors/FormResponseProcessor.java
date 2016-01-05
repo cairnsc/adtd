@@ -6,10 +6,12 @@ import com.thoughtworks.adtd.http.Response;
 import com.thoughtworks.adtd.http.ResponseProcessor;
 import org.jsoup.nodes.Document;
 
+/**
+ * Processes a Document from a HtmlResponseProcessor to produce a Form object for a form with a specified action.
+ */
 public class FormResponseProcessor implements ResponseProcessor {
     private final HtmlResponseProcessor htmlResponseProcessor;
     private final String formAction;
-    private Response response;
     private Form form;
 
     public FormResponseProcessor(HtmlResponseProcessor htmlResponseProcessor, String formAction) {
@@ -26,8 +28,9 @@ public class FormResponseProcessor implements ResponseProcessor {
     }
 
     /**
-     * Get the parsed form.
+     * Get the Form processed from the response.
      * @return Form.
+     * @throws Exception
      */
     public Form getForm() throws Exception {
         if (!responseProcessed()) {
@@ -40,12 +43,11 @@ public class FormResponseProcessor implements ResponseProcessor {
     }
 
     public void process(Request request, Response response) throws Exception {
-        this.response = response;
         Document document = htmlResponseProcessor.getDocument();
         form = Form.getFormFromDocument(document, formAction);
     }
 
     private boolean responseProcessed() {
-        return response != null;
+        return (form != null);
     }
 }

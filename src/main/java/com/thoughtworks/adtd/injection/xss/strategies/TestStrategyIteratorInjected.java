@@ -11,9 +11,6 @@ import java.util.NoSuchElementException;
 public class TestStrategyIteratorInjected implements TestStrategyIterator {
     private int currentIdx;
 
-    /**
-     * Instantiate a TestStrategyIteratorInjected.
-     */
     public TestStrategyIteratorInjected() {
         currentIdx = 0;
     }

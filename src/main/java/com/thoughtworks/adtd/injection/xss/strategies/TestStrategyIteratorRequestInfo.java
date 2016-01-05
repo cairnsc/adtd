@@ -15,7 +15,6 @@ public class TestStrategyIteratorRequestInfo implements TestStrategyIterator {
     private int currentPayloadIdx;
 
     /**
-     * Instantiate a TestStrategyIteratorRequestInfo.
      * @param requestInfo RequestInfo containing request parameters to test.
      */
     public TestStrategyIteratorRequestInfo(RequestInfo requestInfo) {

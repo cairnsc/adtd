@@ -8,7 +8,7 @@ import com.thoughtworks.adtd.util.AssertionFailureException;
 import com.thoughtworks.adtd.util.failureMessages.ShouldHaveValue;
 
 /**
- * Test whether a response has a particular status code.
+ * Response condition to evaluate whether a response has a specified status code.
  */
 public class HasStatusCode implements ResponseCondition {
     private final int statusCode;

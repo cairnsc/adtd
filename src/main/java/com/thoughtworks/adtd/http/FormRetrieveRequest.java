@@ -1,7 +1,7 @@
 package com.thoughtworks.adtd.http;
 
 import com.thoughtworks.adtd.html.Form;
-import com.thoughtworks.adtd.html.responseProcessors.CsrfFormTokenProcessor;
+import com.thoughtworks.adtd.html.responseProcessors.CsrfTokenFormProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.FormResponseProcessor;
 import com.thoughtworks.adtd.html.responseProcessors.HtmlResponseProcessor;
 import org.jsoup.nodes.Document;
@@ -11,6 +11,15 @@ import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 /**
  * A request to perform reconnaissance by inspecting a HTML form. Produces a {@link com.thoughtworks.adtd.html.Form},
  * which can be used to create a {@link com.thoughtworks.adtd.http.RequestInfo}.
+ *
+ * <p>If the form contains a CSRF token, specify it using {@link #withCsrfToken(String)}. See {@link
+ * CsrfTokenFormProcessor} for an explanation..
+ *
+ * <p>To retrieve the form:<br>
+ *  1. Prepare a Request with {@link #prepare()}.<br>
+ *  2. Modify the Request as needed.<br>
+ *  3. Execute the test with {@link #execute(WebProxy)}.<br>
+ *  4. Get the form with {@link #getForm()}.
  */
 public class FormRetrieveRequest implements RequestExecutor {
     private final String formAction;
@@ -20,7 +29,6 @@ public class FormRetrieveRequest implements RequestExecutor {
     private String csrfTokenInputName;
 
     /**
-     * Instantiate a FormRetrieveRequest.
      * @param formAction Form action attribute to identify the form in the HTML document.
      */
     public FormRetrieveRequest(String formAction) {
@@ -53,8 +61,8 @@ public class FormRetrieveRequest implements RequestExecutor {
                 .processWith(formResponseProcessor);
 
         if (csrfTokenInputName != null) {
-            CsrfFormTokenProcessor csrfFormTokenProcessor = new CsrfFormTokenProcessor(formResponseProcessor, csrfTokenInputName);
-            request.processWith(csrfFormTokenProcessor);
+            CsrfTokenFormProcessor csrfTokenFormProcessor = new CsrfTokenFormProcessor(formResponseProcessor, csrfTokenInputName);
+            request.processWith(csrfTokenFormProcessor);
         }
         return request;
     }

@@ -1,5 +1,8 @@
 package com.thoughtworks.adtd.http;
 
+/**
+ * Represents a processor to process a response immediately after a request is performed.
+ */
 public interface ResponseProcessor {
     /**
      * Prepare a request immediately prior to execution.

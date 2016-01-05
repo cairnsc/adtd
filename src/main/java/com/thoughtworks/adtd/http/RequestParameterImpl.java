@@ -5,9 +5,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * Represents a request parameter or a multi-parameter.
- */
 public class RequestParameterImpl implements RequestParameter {
     private final String name;
     private List<String> values;

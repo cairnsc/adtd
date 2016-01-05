@@ -99,7 +99,7 @@ public class RequestInfo {
 
     /**
      * Get request parameters to be submitted in the request.
-     * @return
+     * @return Request parameters.
      */
     public RequestParameters getRequestParameters() {
         return requestParameters;

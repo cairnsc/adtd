@@ -106,8 +106,8 @@ public class Form {
     }
 
     /**
-     * Create a RequestInfo for this form.
-     * @return RequestInfo for this form.
+     * Create a RequestInfo from this form.
+     * @return RequestInfo produced from this form.
      * @throws Exception
      */
     public RequestInfo getRequestInfo() throws Exception {

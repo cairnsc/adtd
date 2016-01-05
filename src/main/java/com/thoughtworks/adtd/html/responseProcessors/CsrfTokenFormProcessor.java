@@ -11,11 +11,17 @@ import org.jsoup.nodes.Element;
 
 import static com.thoughtworks.adtd.util.SelectorStringBuilder.elementSelectorWithAttribute;
 
-public class CsrfFormTokenProcessor implements ResponseProcessor {
+/**
+ * Processes a Form from a HtmlResponseProcessor for a CSRF token. Verifies the properties of the token and the form
+ * that contains it.
+ *
+ * TODO: mark the form field as a CSRF token when the capability to do so is added.
+ */
+public class CsrfTokenFormProcessor implements ResponseProcessor {
     private final FormResponseProcessor formResponseProcessor;
     private final String tokenInputName;
 
-    public CsrfFormTokenProcessor(FormResponseProcessor formResponseProcessor, String tokenInputName) {
+    public CsrfTokenFormProcessor(FormResponseProcessor formResponseProcessor, String tokenInputName) {
         this.formResponseProcessor = formResponseProcessor;
         this.tokenInputName = tokenInputName;
     }

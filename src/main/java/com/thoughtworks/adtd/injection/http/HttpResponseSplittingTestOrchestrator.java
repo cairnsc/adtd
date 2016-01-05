@@ -18,7 +18,6 @@ public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpRespo
     private int currentIdx;
 
     /**
-     * Instantiate a HttpResponseSplittingTestOrchestrator.
      * @param requestInfo RequestInfo containing headers to test.
      */
     public HttpResponseSplittingTestOrchestrator(RequestInfo requestInfo) {

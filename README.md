@@ -22,17 +22,17 @@ Adapters to common frameworks will be created over time. See [Adapters](#adapter
 
 ## Structure
 Suites of tests are categorized by the type of threat mitigation (for example, Cross-Site Scripting) and bundled into
-individual packages. Each test suite contains an test orchestrator, whose responsibility is to execute the tests in the
+individual packages. Each test suite contains an test orchestrator whose responsibility is to execute the tests in the
 suite.
 
 ### Test Execution
 Test execution always follows the same simple pattern:
 
-- Get the next test from the test orchestrator
-- Prepare a Request by invoking the prepare method in the test
-- Modify the Request as needed
-- Invoke the execute method in the test to execute the test
-- Assert the test succeeded by invoking the assertResponse method in the test 
+- Get the next test from the test orchestrator.
+- Prepare a Request by invoking the prepare method in the test.
+- Modify the Request as needed.
+- Invoke the execute method in the test to execute the test.
+- Assert the test succeeded by invoking the assertResponse method in the test. 
 
 ## Preparing tests
 In order to execute tests, information about how to access the resource being tested is needed. The RequestInfo class
@@ -43,14 +43,16 @@ RequestInfo can be created in two ways: through automated resource reconnaissanc
 evolve over time, automated means are preferable since it reduces the risk of forgetting to test a request parameter. 
 
 ### Reconnaissance by HTML form inspection
-The FormRetrieveRequest class requests a resource containing a form to produce a Form object that encapsulates
-information about how to submit a form to a web application. The Form can in turn be used to create a RequestInfo
-object that can be used to test the resource.
+The FormRetrieveRequest class requests a resource containing a form. It produces a Form object that encapsulates
+information about how to submit a form to the web application. The Form can in turn be used to create a RequestInfo
+object for use in when testing the form resource.
 
 ```java
 private RequestInfo retrieveForm(WebProxy webProxy) throws Exception {
-  // create a FormRetrieveRequest to retrieve a form with an action of "/form"
-  FormRetrieveRequest formRetrieveRequest = new FormRetrieveRequest("/form");
+  // create a FormRetrieveRequest to retrieve a form with an action of "/comment". indicate it contains a CSRF token in
+  // an input parameter named "csrf"
+  FormRetrieveRequest formRetrieveRequest = new FormRetrieveRequest("/comment")
+          .withCsrfToken("csrf");
 
   // prepare a Request to retrieve "/" using the GET method
   Request request = formRetrieveRequest.prepare()
@@ -75,6 +77,32 @@ To test a resource for reflected XSS, provide an instance of TestStrategyIterato
 orchestrate tests. This will result in the orchestrator iterating through all parameters of a RequestInfo, testing XSS
 payloads against each.
 
+```java
+  @Test
+  public void shouldNotBeSusceptibleToReflectedXss() throws Exception {
+    // get RequestInfo for the form and set default values of request parameters representing form inputs
+    RequestInfo requestInfo = retrieveForm(webProxy);
+    RequestParameters requestParameters = requestInfo.getRequestParameters();
+    requestParameters.setParam("email", "test@example.com");
+    requestParameters.setParam("comment", "this is a test");
+
+    // instantiate a test orchestrator to iterate through the tests
+    TestStrategyIteratorRequestInfo testStrategyIterator = new TestStrategyIteratorRequestInfo(requestInfo);
+    XssTestOrchestrator orchestrator = new XssTestOrchestrator(testStrategyIterator);
+
+    while (orchestrator.hasNext()) {
+      XssTest xssTest = orchestrator.next();
+
+      // prepare and execute the Request
+      xssTest.prepare()
+              .execute(webProxy);
+
+      // assert the response does not contain the XSS payload
+      xssTest.assertResponse();
+    }
+  }
+```
+
 ### Testing for Persistent XSS
 If data received in a request is persisted to a data store and later sent in a separate response, you should test for
 persistent XSS.
@@ -91,6 +119,42 @@ If CSRF mitigation using the Synchronizer Token Pattern is used, you should veri
 
 To verify CSRF mitigation, use CsrfTokenTestOrchestrator to orchestrate tests. The orchestrator iterates through several
 tests to transmit invalid CSRF tokens, and one test to verify the positive (valid CSRF token) case. 
+
+```java
+  @Test
+  public void shouldNotBeSusceptibleToCsrf() throws Exception {
+    // get RequestInfo for the form and set default values of request parameters representing form inputs
+    RequestInfo requestInfo = retrieveForm(webProxy);
+    RequestParameters requestParameters = requestInfo.getRequestParameters();
+    requestParameters.setParam("email", "test@example.com");
+    requestParameters.setParam("comment", "this is a test");
+
+    // create a test validator
+    ResponseValidator validator = new ResponseValidator() {
+      public boolean validate(CsrfTokenTest test, Request request, Response response) {
+        // expect a 200 response for the positive test case and a 403 response for the negative test case
+        if (test.isPositiveTest()) {
+          return (response.getStatus() == 200);
+        } else {
+          return (response.getStatus() == 403);
+        }
+      }
+    };
+
+    // instantiate a test orchestrator for an input parameter named "csrf" and iterate through the tests
+    CsrfTokenTestOrchestrator orchestrator = new CsrfTokenTestOrchestrator(requestInfo, validator, "csrf");
+
+    while (orchestrator.hasNext()) {
+      CsrfTokenTest csrfTest = orchestrator.next();
+
+      // prepare and execute the Request
+      csrfTest.prepare().execute(webProxy);
+
+      // assert the response was expected
+      csrfTest.assertResponse();
+    }
+  }
+```
 
 ## HTTP Response Splitting Tests
 When data received in a request will be reflected back to the requester in the response, you should test for HTTP

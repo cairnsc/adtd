@@ -2,6 +2,8 @@ package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.csrf.token.strategies.TestStrategy;
 import com.thoughtworks.adtd.http.*;
+import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.Failure;
 
 import static com.thoughtworks.adtd.http.ResponseConditionFactory.status;
 
@@ -51,7 +53,6 @@ public class CsrfTokenTest implements RequestExecutor {
     }
 
     public Response execute(WebProxy proxy) throws Exception {
-        request.expectIfUnset(status().is(HttpStatus.OK));
         return proxy.execute(request);
     }
 
@@ -68,7 +69,11 @@ public class CsrfTokenTest implements RequestExecutor {
             throw new IllegalStateException("A request must first be prepared and executed for this test");
         }
 
-        validator.validate(request, response);
+        if (!validator.validate(this, request, response)) {
+            throw new AssertionFailureException(Failure.failure(
+                    "Response validation", request.getContext()
+            ));
+        }
     }
 
     private boolean requestIsComplete() {

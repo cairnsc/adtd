@@ -5,6 +5,8 @@ import com.thoughtworks.adtd.http.*;
 import com.thoughtworks.adtd.http.responseConditions.status.HasStatusCode;
 import com.thoughtworks.adtd.testutil.BasicHtml;
 import com.thoughtworks.adtd.testutil.TestResponse;
+import com.thoughtworks.adtd.util.AssertionFailureException;
+import com.thoughtworks.adtd.util.failureMessages.Failure;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -72,17 +74,6 @@ public class CsrfTokenTestTests {
     }
 
     @Test
-    public void shouldRegisterHasStatusCodeConditionInRequestIfUnsetDuringExecute() throws Exception {
-        createTest();
-
-        prepareAndExecuteRequest(HttpStatus.OK.getStatusCode(), BasicHtml.HTML);
-
-        Collection<ResponseCondition> expectations = request.getExpectations();
-        // REVISIT: should assert that it was added only if it was unset
-        assertThat(expectations).contains(new HasStatusCode(HttpStatus.OK));
-    }
-
-    @Test
     public void shouldThrowExceptionInAssertResponseBeforeRequestCreated() throws Exception {
         createTest();
         expectedException.expect(IllegalStateException.class);
@@ -102,13 +93,23 @@ public class CsrfTokenTestTests {
     }
 
     @Test
-    public void shouldInvokeValidatorInAssertResponse() throws Exception {
+    public void shouldThrowExceptionIfResponseFailsValidation() throws Exception {
         createTest();
-        prepareAndExecuteRequest(200, BasicHtml.HTML);
+        prepareAndExecuteRequest(403, BasicHtml.HTML);
+        when(responseValidatorMock.validate(test, request, response)).thenReturn(false);
+        expectedException.expect(AssertionFailureException.class);
+        expectedException.expectMessage(Failure.failure("Response validation", request.getContext()));
 
         test.assertResponse();
+    }
 
-        verify(responseValidatorMock).validate(request, response);
+    @Test
+    public void shouldSucceed() throws Exception {
+        createTest();
+        prepareAndExecuteRequest(200, BasicHtml.HTML);
+        when(responseValidatorMock.validate(test, request, response)).thenReturn(true);
+
+        test.assertResponse();
     }
 
     private void createTest() throws Exception {
@@ -121,7 +122,7 @@ public class CsrfTokenTestTests {
     }
 
     private Request createRequest() throws Exception {
-        Request request = new RequestImpl(test, null);
+        Request request = new RequestImpl(test, "test request context");
         request.method("POST");
         return request;
     }

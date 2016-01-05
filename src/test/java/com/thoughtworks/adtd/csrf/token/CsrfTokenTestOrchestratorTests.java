@@ -2,7 +2,6 @@ package com.thoughtworks.adtd.csrf.token;
 
 import com.thoughtworks.adtd.http.RequestInfo;
 import com.thoughtworks.adtd.http.RequestParameters;
-import com.thoughtworks.adtd.http.ResponseValidator;
 import com.thoughtworks.adtd.util.AssertionFailureException;
 import com.thoughtworks.adtd.util.failureMessages.ShouldHaveNumElements;
 import com.thoughtworks.adtd.util.failureMessages.ShouldNotBeEmpty;

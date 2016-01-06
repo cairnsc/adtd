@@ -44,7 +44,7 @@ evolve over time, automated means are preferable since it reduces the risk of fo
 
 ### Reconnaissance by HTML form inspection
 The FormRetrieveRequest class requests a resource containing a form. It produces a Form object that encapsulates
-information about how to submit a form to the web application. The Form can in turn be used to create a RequestInfo
+information about how to submit the form to the web application. The Form can in turn be used to create a RequestInfo
 object for use in when testing the form resource.
 
 ```java
@@ -129,19 +129,8 @@ tests to transmit invalid CSRF tokens, and one test to verify the positive (vali
     requestParameters.setParam("email", "test@example.com");
     requestParameters.setParam("comment", "this is a test");
 
-    // create a test validator
-    ResponseValidator validator = new ResponseValidator() {
-      public boolean validate(CsrfTokenTest test, Request request, Response response) {
-        // expect a 200 response for the positive test case and a 403 response for the negative test case
-        if (test.isPositiveTest()) {
-          return (response.getStatus() == 200);
-        } else {
-          return (response.getStatus() == 403);
-        }
-      }
-    };
-
     // instantiate a test orchestrator for an input parameter named "csrf" and iterate through the tests
+    ResponseValidator validator = new ResponseStatusValidator(200, 403); 
     CsrfTokenTestOrchestrator orchestrator = new CsrfTokenTestOrchestrator(requestInfo, validator, "csrf");
 
     while (orchestrator.hasNext()) {

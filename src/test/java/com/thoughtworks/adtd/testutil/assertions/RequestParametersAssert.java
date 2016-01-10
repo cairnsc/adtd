@@ -54,7 +54,8 @@ public class RequestParametersAssert extends AbstractAssert<RequestParametersAss
     private void compareParams(RequestParameter param, FormField formField, int idx) {
         if (!StringUtils.equals(param.getName(), formField.getName()) ||
                 param.getValues().size() != 1 ||
-                !StringUtils.equals(param.getValues().get(0), formField.getValue())) {
+                !StringUtils.equals(param.getValues().get(0), formField.getValue()) ||
+                !param.getProperties().equals(formField.getProperties())) {
             throw failures.failure(info, elementsDifferAtIndex(param, formField, idx));
         }
     }

@@ -98,6 +98,21 @@ public class Form {
     }
 
     /**
+     * Get form fields for a form field name.
+     * @param name Form field name.
+     * @return List of form fields.
+     */
+    public List<FormField> getFormField(String name) {
+        List<FormField> result = newArrayList();
+        for (FormField formField : formFields) {
+            if (formField.getName().equals(name)) {
+                result.add(formField);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get the fields in this form. Preserves order.
      * @return Form fields.
      */

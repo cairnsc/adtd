@@ -31,7 +31,7 @@ public class RequestParameters {
         params = newArrayList();
         isMutable = true;
         for (FormField formField : formFields) {
-            params.add(new RequestParameterImpl(formField.getName(), formField.getValue()));
+            params.add(new RequestParameterImpl(formField.getName(), formField.getValue(), formField.getProperties()));
         }
     }
 
@@ -52,7 +52,7 @@ public class RequestParameters {
      */
     public void params(RequestParameters requestParameters) {
         for (RequestParameter param : requestParameters.params) {
-            params.add(new RequestParameterImpl(param.getName(), param.getValues()));
+            params.add(new RequestParameterImpl(param.getName(), param.getValues(), param.getProperties()));
         }
     }
 

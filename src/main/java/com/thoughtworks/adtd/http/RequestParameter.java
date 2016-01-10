@@ -1,5 +1,8 @@
 package com.thoughtworks.adtd.http;
 
+import com.thoughtworks.adtd.html.RequestParameterProperty;
+
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -17,4 +20,10 @@ public interface RequestParameter {
      * @return Request parameter values.
      */
     List<String> getValues();
+
+    /**
+     * Get properties for the request parameter.
+     * @return Properties.
+     */
+    EnumSet<RequestParameterProperty> getProperties();
 }

@@ -144,13 +144,28 @@ public class FormTests {
 
         List<FormField> formInputs = form.getFormFields();
 
-        assertThat(formInputs.size()).isEqualTo(2);
-        assertThat(formInputs.size()).isEqualTo(form.countFormFields());
+        assertThat(formInputs).hasSize(2).hasSize(form.countFormFields());
         assertThat(formInputs.get(0).getName()).isEqualTo("a");
         assertThat(formInputs.get(0).getValue()).isEqualTo("b");
         assertThat(formInputs.get(1).getName()).isEqualTo("c");
         assertThat(formInputs.get(1).getValue()).isEqualTo("d");
     }
+
+    @Test
+    public void shouldGetFormField() {
+        FormElement formElement = new FormElement(Tag.valueOf("form"), "/", new Attributes());
+        formElement.append("<input name=\"a\" value=\"b\"></input>");
+        formElement.append("<input name=\"c\" value=\"d\"></input>");
+        formElement.append("<input name=\"a\" value=\"e\"></input>");
+        Form form = new Form(formElement);
+
+        List<FormField> formFields = form.getFormField("a");
+
+        assertThat(formFields).hasSize(2);
+        assertThat(formFields.get(0).getValue()).isEqualTo("b");
+        assertThat(formFields.get(1).getValue()).isEqualTo("e");
+    }
+
 
     private FormElement createBasicFormElement(String method) {
         Attributes attributes = new Attributes();

@@ -32,8 +32,4 @@ public class TestStrategyIteratorInjected implements TestStrategyIterator {
     public void remove() {
         throw new UnsupportedOperationException();
     }
-
-    public int count() {
-        return XssPayload.PAYLOAD_LIST.length;
-    }
 }

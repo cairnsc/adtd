@@ -37,8 +37,4 @@ public class XssTestOrchestrator implements Iterator<XssTest> {
     public void remove() {
         testStrategyIterator.remove();
     }
-
-    public int count() {
-        return testStrategyIterator.count();
-    }
 }

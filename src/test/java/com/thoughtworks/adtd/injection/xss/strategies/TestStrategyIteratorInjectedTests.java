@@ -16,8 +16,7 @@ public class TestStrategyIteratorInjectedTests {
     @Test
     public void shouldExhaustIterator() {
         TestStrategyIteratorInjected iterator = new TestStrategyIteratorInjected();
-        int count = iterator.count();
-        assertThat(count).isEqualTo(XssPayload.PAYLOAD_LIST.length);
+        int count = XssPayload.PAYLOAD_LIST.length;
 
         int idx;
         for (idx = 0; idx < count; idx++) {

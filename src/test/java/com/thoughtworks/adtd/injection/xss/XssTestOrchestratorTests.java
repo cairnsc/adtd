@@ -47,18 +47,6 @@ public class XssTestOrchestratorTests {
     }
 
     @Test
-    public void shouldUseIteratorInCount() {
-        int count = 123;
-        when(testStrategyIterator.count()).thenReturn(count);
-
-        int result = orchestrator.count();
-
-        verify(testStrategyIterator).count();
-        assertThat(result).isEqualTo(count);
-
-    }
-
-    @Test
     public void shouldUseIteratorRemove() {
         orchestrator.remove();
 

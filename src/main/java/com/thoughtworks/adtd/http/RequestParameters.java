@@ -3,7 +3,9 @@ package com.thoughtworks.adtd.http;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.thoughtworks.adtd.html.FormField;
+import com.thoughtworks.adtd.html.RequestParameterProperty;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,6 +47,19 @@ public class RequestParameters {
         checkMutability();
         params.add(new RequestParameterImpl(name, values));
     }
+
+    /**
+     * Add a request parameter. If multiple values are provided, it is treated as a multi-value parameter. The order
+     * parameters are added in is preserved.
+     * @param name Request parameter name.
+     * @param values List of zero or more request parameter values.
+     * @param properties Request parameter properties.
+     */
+    public void param(String name, List<String> values, EnumSet<RequestParameterProperty> properties) {
+        checkMutability();
+        params.add(new RequestParameterImpl(name, values, properties));
+    }
+
 
     /**
      * Add request parameters from another RequestParameters instance.

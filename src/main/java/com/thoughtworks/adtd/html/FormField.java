@@ -35,8 +35,8 @@ public class FormField {
         return properties;
     }
 
-    public void property(RequestParameterProperty... flags) {
-        this.properties.addAll(Arrays.asList(flags));
+    public void property(RequestParameterProperty... properties) {
+        this.properties.addAll(Arrays.asList(properties));
     }
 
     @Override

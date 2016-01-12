@@ -10,7 +10,7 @@ This includes mitigations against common problems such as those found in the OWA
 security controls.
 
 Creation of the framework was motivated by the lack of a simplified means of testing these concerns on projects that
-make heavy use of automated testing.
+otherwise have extensive automated tests.
 
 ## Getting started
 In order to use adtd, you must create a class that implements the WebProxy interface to execute requests generated in
@@ -49,8 +49,8 @@ object for use in when testing the form resource.
 
 ```java
 private RequestInfo retrieveForm(WebProxy webProxy) throws Exception {
-  // create a FormRetrieveRequest to retrieve a form with an action of "/comment". indicate it contains a CSRF token in
-  // an input parameter named "csrf"
+  // create a FormRetrieveRequest to retrieve a form with an action of "/comment". indicate it contains a CSRF token
+  // in an input parameter named "csrf"
   FormRetrieveRequest formRetrieveRequest = new FormRetrieveRequest("/comment")
           .withCsrfToken("csrf");
 
@@ -101,6 +101,14 @@ payloads against each.
       xssTest.assertResponse();
     }
   }
+```
+
+If request parameters values are not set explicitly as in the above example, it is a good idea to verify the
+orchestrator iterated over tests in case there was a problem with the form.
+
+```java
+  // verify the orchestrator iterated over request parameters
+  assertThat(orchestrator.countTested()).isNotZero();  
 ```
 
 ### Testing for Persistent XSS

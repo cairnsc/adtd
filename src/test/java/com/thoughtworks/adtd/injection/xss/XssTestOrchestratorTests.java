@@ -25,6 +25,11 @@ public class XssTestOrchestratorTests {
     }
 
     @Test
+    public void shouldHaveZeroTestedCount() {
+        assertThat(orchestrator.countTested()).isZero();
+    }
+
+    @Test
     public void shouldUseIteratorInHasNext() {
         when(testStrategyIterator.hasNext()).thenReturn(true);
 
@@ -32,6 +37,7 @@ public class XssTestOrchestratorTests {
 
         verify(testStrategyIterator).hasNext();
         assertThat(hasNext).isTrue();
+        assertThat(orchestrator.countTested()).isZero();
     }
 
     @Test
@@ -44,6 +50,7 @@ public class XssTestOrchestratorTests {
         XssTest next = orchestrator.next();
 
         assertThat(next.getXssPayload()).isEqualTo(xssPayload);
+        assertThat(orchestrator.countTested()).isEqualTo(1);
     }
 
     @Test

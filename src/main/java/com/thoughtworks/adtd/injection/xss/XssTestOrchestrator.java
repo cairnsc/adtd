@@ -19,9 +19,11 @@ import java.util.Iterator;
  */
 public class XssTestOrchestrator implements Iterator<XssTest> {
     private TestStrategyIterator testStrategyIterator;
+    private int testCount;
 
     public XssTestOrchestrator(TestStrategyIterator testStrategyIterator) {
         this.testStrategyIterator = testStrategyIterator;
+        testCount = 0;
     }
 
     public boolean hasNext() {
@@ -31,10 +33,19 @@ public class XssTestOrchestrator implements Iterator<XssTest> {
     public XssTest next() {
         TestStrategy testStrategy = testStrategyIterator.next();
         XssTest test = new XssTest(testStrategy);
+        ++testCount;
         return test;
     }
 
     public void remove() {
         testStrategyIterator.remove();
+    }
+
+    /**
+     * Get a count of the number of tests the orchestrator has run.
+     * @return Number of tests the orchestrator has run.
+     */
+    public int countTested() {
+        return testCount;
     }
 }

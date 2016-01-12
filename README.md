@@ -67,6 +67,12 @@ private RequestInfo retrieveForm(WebProxy webProxy) throws Exception {
 }
 ```
 
+### Request Parameter Properties
+Request parameters allow properties to be associated to indicate their purpose and significance. 
+
+Presently the only property available is REQUEST_PARAMETER_IGNORE, which is used to mark a parameter to be ignored by
+certain tests that iterate over request parameters.
+
 ## Cross-Site Scripting (XSS) Tests
 
 ### Testing for Reflected XSS
@@ -74,9 +80,8 @@ When data received in a request will be reflected back to the requester in the r
 XSS.
 
 To test a resource for reflected XSS, provide an instance of TestStrategyIteratorRequestInfo to XssTestOrchestrator to
-orchestrate tests. This will result in the orchestrator iterating through parameters of a RequestInfo, testing XSS
-payloads against each. The iterator will exclude parameters marked with REQUEST_PARAMETER_IGNORE, which presently will
-only be set if withCsrfToken() is used in a FormRetrieveRequest.
+orchestrate tests. This will result in the orchestrator iterating through request parameters of a RequestInfo, testing
+XSS payloads for each. This excludes parameters that were marked as ignored.
 
 ```java
   @Test

@@ -27,36 +27,30 @@ public class HttpResponseSplittingTestOrchestratorTests {
     }
 
     @Test
-    public void shouldThrowExceptionOnRemove() {
-        expectedException.expect(UnsupportedOperationException.class);
-
-        orchestrator.remove();
-    }
-
-    @Test
-    public void shouldGetCountFromForm() {
-        int requestParametersCount = 123;
-        when(requestParametersMock.size()).thenReturn(requestParametersCount);
-
-        int count = orchestrator.count();
-
-        assertThat(count).isEqualTo(requestParametersCount);
+    public void shouldHaveZeroTestedCount() {
+        assertThat(orchestrator.countTested()).isZero();
     }
 
     @Test
     public void shouldExhaustIterator() {
         int requestParametersCount = 2;
         when(requestParametersMock.size()).thenReturn(requestParametersCount);
-        int count = orchestrator.count();
-        assertThat(count).isEqualTo(requestParametersCount);
 
         int idx;
-        for (idx = 0; idx < count; idx++) {
+        for (idx = 0; idx < requestParametersCount; idx++) {
             HttpResponseSplittingTest next = orchestrator.next();
             assertThat(next).isNotNull();
         }
 
-        assertThat(idx).isEqualTo(count);
+        assertThat(idx).isEqualTo(requestParametersCount);
+        assertThat(orchestrator.countTested()).isEqualTo(requestParametersCount);
         assertThat(orchestrator.hasNext()).isFalse();
+    }
+
+    @Test
+    public void shouldThrowExceptionOnRemove() {
+        expectedException.expect(UnsupportedOperationException.class);
+
+        orchestrator.remove();
     }
 }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpResponseSplittingTest> {
     private final RequestInfo requestInfo;
     private int currentIdx;
+    private int testCount;
 
     /**
      * @param requestInfo RequestInfo containing headers to test.
@@ -23,6 +24,7 @@ public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpRespo
     public HttpResponseSplittingTestOrchestrator(RequestInfo requestInfo) {
         this.requestInfo = requestInfo;
         currentIdx = 0;
+        testCount = 0;
     }
 
     public boolean hasNext() {
@@ -31,7 +33,8 @@ public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpRespo
 
     public HttpResponseSplittingTest next() {
         HttpResponseSplittingTest test = new HttpResponseSplittingTest(requestInfo, currentIdx);
-        currentIdx++;
+        ++currentIdx;
+        ++testCount;
         return test;
     }
 
@@ -39,7 +42,11 @@ public class HttpResponseSplittingTestOrchestrator implements Iterator<HttpRespo
         throw new UnsupportedOperationException();
     }
 
-    public int count() {
-        return requestInfo.getRequestParameters().size();
+    /**
+     * Get a count of the number of tests the orchestrator has run.
+     * @return Number of tests the orchestrator has run.
+     */
+    public int countTested() {
+        return testCount;
     }
 }

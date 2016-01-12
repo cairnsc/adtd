@@ -1,5 +1,6 @@
 package com.thoughtworks.adtd.injection.xss.strategies;
 
+import com.google.common.collect.Iterables;
 import com.thoughtworks.adtd.html.RequestParameterProperty;
 import com.thoughtworks.adtd.http.RequestExecutor;
 import com.thoughtworks.adtd.http.RequestInfo;
@@ -54,13 +55,15 @@ public class TestStrategyIteratorRequestInfoTests {
     public void shouldSkipImmutableFields() throws Exception {
         requestInfoMock = mock(RequestInfo.class);
         requestParameters = new RequestParameters();
-        requestParameters.param("a", Collections.singletonList("A"), EnumSet.of(RequestParameterProperty.REQUEST_PARAMETER_IGNORE));
+        String param1 = "a";
+        requestParameters.param(param1, Collections.singletonList("A"), EnumSet.of(RequestParameterProperty.REQUEST_PARAMETER_IGNORE));
         requestParameters.param("b", "B");
-        requestParameters.param("c", Collections.singletonList("C"), EnumSet.of(RequestParameterProperty.REQUEST_PARAMETER_IGNORE));
+        String param2 = "c";
+        requestParameters.param(param2, Collections.singletonList("C"), EnumSet.of(RequestParameterProperty.REQUEST_PARAMETER_IGNORE));
         requestParameters.param("D", "d");
         when(requestInfoMock.getRequestParameters()).thenReturn(requestParameters);
         iterator = new TestStrategyIteratorRequestInfo(requestInfoMock);
-        int paramIndexes[] = { 0, 2 };
+        Iterable<Integer> paramIndexes = Iterables.concat(requestParameters.paramIndexOf(param1), requestParameters.paramIndexOf(param2));
 
         while (iterator.hasNext()) {
             TestStrategyRequestParam next = (TestStrategyRequestParam)iterator.next();

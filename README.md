@@ -74,8 +74,9 @@ When data received in a request will be reflected back to the requester in the r
 XSS.
 
 To test a resource for reflected XSS, provide an instance of TestStrategyIteratorRequestInfo to XssTestOrchestrator to
-orchestrate tests. This will result in the orchestrator iterating through all parameters of a RequestInfo, testing XSS
-payloads against each.
+orchestrate tests. This will result in the orchestrator iterating through parameters of a RequestInfo, testing XSS
+payloads against each. The iterator will exclude parameters marked with REQUEST_PARAMETER_IGNORE, which presently will
+only be set if withCsrfToken() is used in a FormRetrieveRequest.
 
 ```java
   @Test
@@ -147,7 +148,7 @@ tests to transmit invalid CSRF tokens, and one test to verify the positive (vali
       // prepare and execute the Request
       csrfTest.prepare().execute(webProxy);
 
-      // assert the response was expected
+      // assert the response passed the test
       csrfTest.assertResponse();
     }
   }
@@ -158,9 +159,34 @@ When data received in a request will be reflected back to the requester in the r
 Response Splitting.
 
 To test for response splitting, use HttpResponseSplittingTestOrchestrator to orchestrate tests. The orchestrator
-iterates through all headers of a RequestInfo, sending a dangerous payload for each.
+iterates through all parameters of a RequestInfo, sending a dangerous payload for each.
+
+```java
+  @Test
+  public void shouldNotBeSusceptibleToResponseSplitting() throws Exception {
+    // get RequestInfo for the form
+    RequestInfo requestInfo = retrieveForm(webProxy);
+    
+    // instantiate a test orchestrator and iterate through the tests
+    HttpResponseSplittingTestOrchestrator orchestrator = new HttpResponseSplittingTestOrchestrator(requestInfo);
+    
+    while (orchestrator.hasNext()) {
+      HttpResponseSplittingTest hrspTest = orchestrator.next();
+      
+      // prepare and execute the Request
+      hrspTest.prepare().execute(webProxy);
+      
+      // assert the response passed the test
+      hrspTest.assertResponse();
+    }
+    
+    // verify the orchestrator iterated over parameters
+    assertThat(orchestrator.countTested()).isNotZero();
+  }
+```
 
 Support for the persistent case will be added in a coming release.
+
 
 ## Adapters
 Adapters for common web and test frameworks will be listed here as they are created. Interested in creating an adapter?

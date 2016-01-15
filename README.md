@@ -4,10 +4,9 @@ adtd is a framework for Attack-Driven Test Development.
 The framework strives to simplify the task of verifying threat mitigations and other security controls in code.
 
 Web applications typically employ various controls to reduce security risks. Examples include protections against
-attacks like SQL Injection and Cross-Site Scripting, and controls like authentication and access control.
-
-The purpose of this framework is to validate those controls are operating as expected. The tests it includes today are
-intended for use in high-level tests such as integration tests.
+attacks like SQL Injection and Cross-Site Scripting, and controls like authentication and access control. The purpose of
+this framework is to validate those controls are operating as expected. The tests it includes today are intended for use
+in high-level tests such as integration tests.
 
 ## Goals
 The goal of adtd is to provide a straightforward way of verifying security threat mitigations and controls are
@@ -29,9 +28,8 @@ test framework of choice.
 Adapters to common frameworks will be created over time. See [Adapters](#adapters) for a list of adapters.
 
 ## Structure
-Suites of tests are categorized by the type of threat mitigation or control (for example, Cross-Site Scripting) and
-bundled into individual packages. Each test suite contains a test orchestrator whose responsibility is to execute the
-test cases in the suite.
+Suites of tests are categorized by the type of threat mitigation or security control and bundled into individual
+packages. Each test suite contains a test orchestrator whose responsibility is to execute the test cases in the suite.
 
 ### Test execution
 Test execution always follows the same simple pattern:
@@ -42,22 +40,22 @@ Test execution always follows the same simple pattern:
 - Invoke the execute method in the test to execute the test.
 - Assert the test succeeded by invoking the assertResponse method in the test. 
 
-A fluent interface will soon be added in to execute all the tests in a suite in a single line. The above long form will
-remain where per-request customization is needed.
+A fluent interface will soon be added to support executing all the tests in a suite in a single line. The above long
+form will remain where per-request customization is needed.
 
 ## Preparing tests
 In order to execute tests, information is needed about how to access the resource being tested. The RequestInfo class
 holds request parameters and data for that purpose. It is passed to tests, which use it to create requests that contain
 attack payloads before executing the test.
 
-RequestInfo can be created in two ways: by dynamically loading a resource, or manually. Since resources often evolve
-over time, dynamically loading the resource is preferable since it reduces the risk of forgetting to test a request
-parameter. 
+RequestInfo can be created in two ways: by dynamically loading an HTML resource, or manually. Since resources often
+evolve over time, dynamically loading the resource is preferable since it reduces the risk of forgetting to test a
+request parameter. 
 
 ### Dynamically loading form contents
-The FormRetrieveRequest class loads a resource containing a form to produce a Form object that encapsulates information
-about how to submit the form to the web application. The Form can in turn be used to create a RequestInfo object for
-use when testing the form resource.
+The FormRetrieveRequest class loads an HTML resource containing a form to produce a Form object that encapsulates
+information about how to submit the form to the web application. The Form can in turn be used to create a RequestInfo
+object for use when testing the form resource.
 
 ```java
 private RequestInfo retrieveForm(WebProxy webProxy) throws Exception {
